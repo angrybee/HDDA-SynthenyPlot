@@ -1,16 +1,42 @@
 <!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
 <html>
     <head>
-        <title>TODO supply a title</title>
+        <title>Homologies of Genes</title>
+        <link rel="stylesheet" href="css/styles.css" type="text/css"/>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <div>TODO write content</div>
+        <div class="header">logo</div>
+        <div class="top">Oberer Teil, Menü, Auswahlkram</div>
+        <div class="middle">
+            <div class="UpDownLoad">
+            </div>    
+                <div class="list">Liste der Genome als Mehrfachauswahl
+                <!-- Zugriff auf Array "zutat" wenn alle Checkboxen gleichen Namen haben -->
+                <form action="#"> 
+                    <h3>Kreuzen Sie die gewünschten Genome an:</h3> 
+                    <fieldset> 
+                        <p>
+                            <label for="check1"> 
+                                <input type="checkbox" name="zutat" value="salami" id="check1"> Salami-Genom 
+                            </label>
+                        </p><p>
+                            <label for="check2"> 
+                                <input type="checkbox" name="zutat" value="schinken" id="check2"> Schinken-Genom 
+                            </label>
+                        </p><p>
+                            <label for="check3"> 
+                                <input type="checkbox" name="zutat" value="sardellen" id="check3"> Sardellen-Genom 
+                            </label> 
+                        </p>
+                    </fieldset> 
+                </form>
+            </div>
+            <div class="plot">
+                <img src="pics/Rplot.png">
+            </div>
+        </div>
+        <div class="bottom">Unterer Teil, Impressum, Kontakt, Tanzende Jenny</div>
     </body>
 </html>
