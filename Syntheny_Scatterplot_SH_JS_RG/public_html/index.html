@@ -5,38 +5,41 @@
         <link rel="stylesheet" href="css/styles.css" type="text/css"/>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="http://d3js.org/d3.v3.min.js"></script>
+        <script src="js/functions.js" type="text/javascript"></script>
     </head>
     <body>
-        <div class="header">logo</div>
-        <div class="top">Oberer Teil, Menü, Auswahlkram</div>
-        <div class="middle">
-            <div class="UpDownLoad">
-            </div>    
-                <div class="list">Liste der Genome als Mehrfachauswahl
-                <!-- Zugriff auf Array "zutat" wenn alle Checkboxen gleichen Namen haben -->
-                <form action="#"> 
-                    <h3>Kreuzen Sie die gewünschten Genome an:</h3> 
-                    <fieldset> 
-                        <p>
-                            <label for="check1"> 
-                                <input type="checkbox" name="zutat" value="salami" id="check1"> Salami-Genom 
-                            </label>
-                        </p><p>
-                            <label for="check2"> 
-                                <input type="checkbox" name="zutat" value="schinken" id="check2"> Schinken-Genom 
-                            </label>
-                        </p><p>
-                            <label for="check3"> 
-                                <input type="checkbox" name="zutat" value="sardellen" id="check3"> Sardellen-Genom 
-                            </label> 
-                        </p>
-                    </fieldset> 
-                </form>
-            </div>
-            <div class="plot">
-                <img src="pics/Rplot.png">
-            </div>
-        </div>
-        <div class="bottom">Unterer Teil, Impressum, Kontakt, Tanzende Jenny</div>
+        <script>
+            /*   
+             var dataset = [];
+             window.onload = function () { // on start and new upload
+             dataset = readJSON(dataset);
+             }; 
+             */
+
+            d3.json("files/example_5.json", function (dataset) {
+                var i = 0; // id/value genome
+                var fieldset = d3.select("body")
+                        .append("div")
+                        .attr("class", "list")
+                        .append("fieldset");
+                var inputs = fieldset.selectAll("p")
+                        .data(dataset)
+                        .enter()
+                        .append("p")
+                        .append("label")
+                        .append("input")
+                        .attr("type", "checkbox")
+                        .attr("name", "genome")
+                        .attr("value", function () {
+                            return i++;
+                        });
+                fieldset.selectAll("label") // label text after inputfield
+                        .append("text")
+                        .text(function (d) {
+                            return d.Name;
+                        });
+            });
+        </script>
     </body>
 </html>
