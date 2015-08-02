@@ -1,0 +1,19 @@
+div {
+    /* To see the borders in draft */
+    border-style:solid; 
+    border-width:1px;
+    border-color:pink;
+}
+div.header {
+    text-align:center;
+    background-image:url("../pics/logo_bg.png");
+    background-repeat:repeat-x;
+    background-position:left top;
+    height:80px;
+}
+div.list {
+    float:left;
+}
+div.plot {
+    float:none;
+}
