@@ -9,58 +9,19 @@
         <script src="js/functions.js" type="text/javascript"></script>
     </head>
     <body>
-        <noscript>Please activate JavaScript!</noscript> 
-        <script>
-          <!-- // http://www.w3schools.com/tags/tag_noscript.asp
-            /*   
-             var dataset = [];
-             window.onload = function () { // on start and new upload
-             dataset = readJSON(dataset);
-             }; 
-             */
+        <div class="header">logo</div>
+        <div class="top">Oberer Teil, Menü, Auswahlkram</div>
+        <div class="middle">
+            <div class="list" id="list"></div>
+            <div class="plot">
+                <img src="pics/Rplot.png" alt="Scatterplot">
+            </div>
+        </div>
+        <div class="bottom">Unterer Teil, Impressum, Kontakt, Tanzende Jenny</div>
 
-            d3.json("files/example_5.json", function (dataset) {
-                var i = 0; // id/value genome
-                var fieldset = d3.select("body")
-                        .append("div")
-                        .attr("class", "list")
-                        .append("form")
-                        .append("fieldset");
-                // Building inputelements
-                var inputs = fieldset.selectAll("p")
-                        .data(dataset)
-                        .enter()
-                        .append("p")
-                        .append("label")
-                        .append("input")
-                        .attr("type", "checkbox")
-                        .attr("name", "genome")
-                        .attr("value", function () {
-                            return i++;
-                        });
-                // Text of label after inputelement
-                fieldset.selectAll("label")
-                        .append("text")
-                        .text(function (d) {
-                            return d.Name;
-                        });
-                // Setting Buttons
-                fieldset.append("button")
-                        .attr("type", "reset")
-                        .text("Reset");
-                fieldset.append("button")
-                        .attr("type", "submit")
-                        .attr("disabled", "true")
-                        .attr("formaction", "#")
-                        .text("Submit");
-                fieldset.append("button")
-                        .attr("type", "submit")
-                        .attr("disabled", "true")
-                        .attr("formaction", "#")
-                        .attr("formtarget", "_blank")
-                        .text("Upload");
-            });
-            //-->
-        </script>
+        <noscript>Please activate JavaScript!</noscript>
+        
+        <script src="js/genomeSelection.js" type="text/javascript"></script>
+
     </body>
 </html>
