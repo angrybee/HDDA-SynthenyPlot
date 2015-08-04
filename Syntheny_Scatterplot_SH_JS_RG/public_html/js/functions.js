@@ -19,26 +19,39 @@ function readJSON(dataset, json) {
 
 /* Fetches selection of genomes from inputs "genomeSelect".
  * 
- * @param {Array} dataset
+ * // @param {Array} dataset
  * @returns {Array} scatterplot;
  * 
  * TBD:
- * Saves each checked input. Pairwise comparison for homologouse genes.
+ * Building new structure of gendata.
+ * Pairwise comparison for homologouse genes.
  *  
- * Known Bugs:
- * First click deletes, second works, same behaviour after editing selection
- * Check the form/inputs/buttons
  */
-function findHomologies(dataset) {
-    var scatterplot = [];
-    var genomeList = document.getElementsByName("genomeSelect");
-    for (var i = 0; i < genomeList.length; i++) {
-        if (genomeList[i].checked) {
-            console.log(genomeList[i].value);
-        }
-        else {
-            console.log("not checked");
-        }
+function findHomologies() {
+    var scatterplot;
+    var selectedGenomes = getSelectedItems("genomeSelect");
+    if (selectedGenomes.length < 2) {
+        console.warn("Mindestens 2 Genome auswählen!"); // TBD  
+    }
+    else {
+        console.log(selectedGenomes);
     }
     return scatterplot;
+}
+
+
+/* Fetches selections from inputs and stores the value-attributes in an array.
+ * 
+ * @param {String} Name of inputset
+ * @returns {Array} selectedItems
+ */
+function getSelectedItems(selection) {
+    var selectedItems = [];
+    var selectionList = document.getElementsByName(selection);
+    for (var i = 0; i < selectionList.length; i++) {
+        if (selectionList[i].checked) {
+            selectedItems.push(selectionList[i].value);
+        }
+    }
+    return selectedItems;
 }

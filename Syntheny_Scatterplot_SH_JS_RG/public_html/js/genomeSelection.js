@@ -12,7 +12,9 @@
  }; 
  */
 
-d3.json("files/example_5.json", function (dataset) {
+d3.json("files/example_5.json", function (error, dataset) {
+    if (error)
+        return console.warn(error); // TBD
     var i = 0; // id/value genome
     var genomeSelect = d3.select("div#list")
             .append("form")
@@ -26,6 +28,7 @@ d3.json("files/example_5.json", function (dataset) {
             .append("input")
             .attr("type", "checkbox")
             .attr("name", "genomeSelect")
+//            .attr("checked", "true")  // for draft
             .attr("value", function () {
                 return i++;
             });
@@ -40,14 +43,13 @@ d3.json("files/example_5.json", function (dataset) {
             .attr("type", "reset")
             .text("Reset");
     genomeSelect.append("button")
-            .attr("type", "submit")
+            .attr("type", "button")
             .attr("onclick", "findHomologies()")
             .text("Submit");
     genomeSelect.append("button")
-            .attr("type", "submit")
+            .attr("type", "button")
             .attr("disabled", "true")
             // .attr("onclick", "uploadGenome()")
             // .attr("formtarget", "_blank")
             .text("Upload");
 });
-
