@@ -1,0 +1,19 @@
+[{"Genomes": [
+	{"acc": "firstGenome",
+		"genes": [
+			{"acc": "genA1", "start": "1112", "end": "1244", "strain": "+", "info": "Supergene"},
+			{"acc": "genB4", "start": "1413", "end": "1934", "strain": "+", "info": "Supergene"}
+		]
+	},
+	{"acc": "secondGenome",
+		"genes": [
+			{"acc": "genA2", "start": "1113", "end": "1234", "strain": "+", "info": "Supergene"},
+                        {"acc": "genB4", "start": "1413", "end": "1934", "strain": "+", "info": "Supergene"}
+		]
+	}	
+]},{
+"homology": [
+	{"genome1": "firstGenome", "genome2": "secondGenome", "gene1": "genA1", "gene2": "genA2"},
+	{"genome1": "firstGenome", "genome2": "secondGenome", "gene1": "genB4", "gene2": "genB4"}
+]}
+]
