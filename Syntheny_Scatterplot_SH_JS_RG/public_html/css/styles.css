@@ -4,16 +4,21 @@ div {
     border-width:1px;
     border-color:pink;
 }
-div.header {
-    text-align:center;
-    background-image:url("../pics/logo_bg.png");
-    background-repeat:repeat-x;
-    background-position:left top;
-    height:80px;
-}
 div.list {
     float:left;
 }
 div.plot {
     float:none;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
 }

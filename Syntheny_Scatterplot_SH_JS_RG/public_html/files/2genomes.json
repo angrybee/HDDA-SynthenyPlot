@@ -13,7 +13,7 @@
 	}	
 ]},{
 "homology": [
-	{"genome1": "firstGenome", "genome2": "secondGenome", "gene1": "genA1", "gene2": "genA2"},
-	{"genome1": "firstGenome", "genome2": "secondGenome", "gene1": "genB4", "gene2": "genB4"}
+	{"genome1": "0", "genome2": "1", "gene1": "0", "gene2": "0"},
+	{"genome1": "0", "genome2": "1", "gene1": "1", "gene2": "1"}
 ]}
 ]
