@@ -1,10 +1,3 @@
-/*
- * 
- * http://bl.ocks.org/mbostock/3213173
- *
- */
-
-
 //d3.json("files/2genomes.json", function (error, dataset) {
 d3.tsv("files/ArabidopsisChr1.tsv", function (error, dataset) {
     if (error)
@@ -17,6 +10,7 @@ d3.tsv("files/ArabidopsisChr1.tsv", function (error, dataset) {
     var height = 500 - margin.top - margin.bottom;
     var startDomain = getMinimum();
     var endDomain = getMaximum();
+
     // flexibler und zusammenfassen, Puffer von 5% (*1,05)
     function getMinimum() {
         // parseInt, weil sonst String und lexikalisch sortiert
@@ -86,14 +80,10 @@ d3.tsv("files/ArabidopsisChr1.tsv", function (error, dataset) {
                 .attr("transform", function (d) {
                     return "translate(" + d3.event.translate + ")"
                             + " scale(" + d3.event.scale + ")"
-                    /*                  
-                     return "translate(" + xScale(d.Start1)
-                     + "," + yScale(d.Start2) + ")";
-                     */
                 });
     }
 
-    var tooltip = d3.select("#tooltip");
+    var tooltip = d3.select("div#tooltip");
 
     // SVG
     var svg = d3.select("div#scatter")
@@ -104,7 +94,7 @@ d3.tsv("files/ArabidopsisChr1.tsv", function (error, dataset) {
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
             .call(zoom);
 
-    svg.append("rect")  // Plothintergrund, damit überall gezoomt werden kann, nicht nur auf Punkten.
+    svg.append("rect")  // Plothintergrund, damit von überall gezoomt werden kann, nicht nur auf Punkten.
             .attr("width", width)
             .attr("height", height);
 
@@ -140,23 +130,43 @@ d3.tsv("files/ArabidopsisChr1.tsv", function (error, dataset) {
                 return yScale(d.Start2);
             })
             .attr("r", "1") // radius
-            .style("fill", "blue") // color
             .on("mouseover", function (d) {
-                //Update the tooltip genome1
-                tooltip.select("#genome1").text(d.Genome1);
-                tooltip.select("#gen1").text(d.Gen1);
-                tooltip.select("#start1").text(d.Start1);
-                tooltip.select("#end1").text(d.End1);
-                tooltip.select("#length1").text(Math.abs(d.End1 - d.Start1));
-                //Update the tooltip genome2
-                tooltip.select("#genome2").text(d.Genome2);
+                tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                tooltip.select("#gen1").text(d.Gen1);  // mit Text füllen
                 tooltip.select("#gen2").text(d.Gen2);
-                tooltip.select("#start2").text(d.Start2);
-                tooltip.select("#end2").text(d.End2);
-                tooltip.select("#length2").text(Math.abs(d.End2 - d.Start2));
-                // Update the tooltip info
-                tooltip.select("#info").text(d.Info);
+                tooltip.style("left", (d3.event.pageX) + "px") // xPos
+                        .style("top", (d3.event.pageY - 40) + "px");  // yPos              
+                d3.select(this).classed("hover", true);  // bunt
+                this.parentNode.appendChild(this); // Redraw
+            })
+            .on("mouseout", function (d) {
+                tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                d3.select(this).classed("hover", false);  // normal
             });
+
+
+
+
+    /*                //Update the tooltip genome1
+     * ON mouseclick infofenster füllen mit näheren infos
+     * 
+     tooltip.select("#genome1").text(d.Genome1);
+     tooltip.select("#gen1").text(d.Gen1);
+     tooltip.select("#start1").text(d.Start1);
+     tooltip.select("#end1").text(d.End1);
+     tooltip.select("#length1").text(Math.abs(d.End1 - d.Start1));
+     //Update the tooltip genome2
+     tooltip.select("#genome2").text(d.Genome2);
+     tooltip.select("#gen2").text(d.Gen2);
+     tooltip.select("#start2").text(d.Start2);
+     tooltip.select("#end2").text(d.End2);
+     tooltip.select("#length2").text(Math.abs(d.End2 - d.Start2));
+     // Update the tooltip info
+     tooltip.select("#info").text(d.Info);*/
 
     /*
      // Determine whether polygon is in left/right side of screen, and alter tooltip location accordingly:

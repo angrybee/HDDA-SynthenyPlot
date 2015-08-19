@@ -11,6 +11,27 @@ div.plot {
     float:none;
 }
 
+div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 100px;
+    height: 40px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+    opacity: 0;
+}
+circle {
+    fill: darkblue;
+}
+
+circle.hover {
+    fill: red;
+}
+
 rect {
     fill: transparent;
     shape-rendering: crispEdges;
@@ -29,23 +50,36 @@ rect {
     fill: #666;
 }
 
+span.genname {
+    font-size:16px;
+    font-family: sans-serif;
+    fill: #666;
+}
+
+
+
+/*
+
 .plot {
-    cursor:move;
+   cursor:move;
 }
 
 #tooltip {
     position:absolute;
-    /*    top:1px;*/
+       top:1px;
     right:0;
     padding:15px 20px;
     width:30%;
-    /*    background:rgba(254,253,245,0.8);
+      background:rgba(254,253,245,0.8);
         color:#616143;
-        height:418px;*/
+        height:418px;
     z-index:1;
     text-shadow:0 -1px 1px rgba(255,255,255,0.6);
     box-shadow:1px 0 0 rgba(0,0,0,0.05) inset;
-}
+} 
+
+
+
 #tooltip.leftPos {
     left:60px;
 }
@@ -63,3 +97,5 @@ rect {
     font-weight:normal;
     font-size:12px;
 }
+
+*/
