@@ -11,6 +11,11 @@ div.plot {
     float:none;
 }
 
+rect {
+    fill: transparent;
+    shape-rendering: crispEdges;
+}
+
 .axis path,
 .axis line {
     fill: none;
@@ -21,4 +26,40 @@ div.plot {
 .axis text {
     font-family: sans-serif;
     font-size: 11px;
+    fill: #666;
+}
+
+.plot {
+    cursor:move;
+}
+
+#tooltip {
+    position:absolute;
+    /*    top:1px;*/
+    right:0;
+    padding:15px 20px;
+    width:30%;
+    /*    background:rgba(254,253,245,0.8);
+        color:#616143;
+        height:418px;*/
+    z-index:1;
+    text-shadow:0 -1px 1px rgba(255,255,255,0.6);
+    box-shadow:1px 0 0 rgba(0,0,0,0.05) inset;
+}
+#tooltip.leftPos {
+    left:60px;
+}
+
+#stats span {
+    display:block;
+}
+.value {
+    border-bottom:1px solid #888;
+    font-size:16px;
+    padding-right:5px;
+    font-family:'TradeGothicNextW01-BdCm',sans-serif;
+}
+.key {
+    font-weight:normal;
+    font-size:12px;
 }
