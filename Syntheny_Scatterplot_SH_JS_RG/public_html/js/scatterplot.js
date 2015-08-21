@@ -1,5 +1,20 @@
+/* ToDo
+ * 
+ * Punkte beim Zoom klein lassen/anpassen
+ *      Tooltipbox ausrichten
+ *      Markierung merken (index in dataset) und speichern? Danach weiterhovern.
+ *      Merken zusätzlich via Doppelklick?
+ *      Kleiner Tipp obsolet?
+ *      Tooltip sperren wg. links anklicken, wie dann weiter suchen?
+ * tiefer zoomen
+ * 
+ * Nach Reset:
+ * "Unerwarteter Wert translate(undefined) scale(undefined) beim Parsen des Attributs transform."
+ * 
+ */
+
 //d3.json("files/2genomes.json", function (error, dataset) {
-d3.tsv("files/ArabidopsisChr1.tsv", function (error, dataset) {
+d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
     if (error)
         return console.warn(error); // TBD
 //    console.log(dataset);
@@ -10,8 +25,13 @@ d3.tsv("files/ArabidopsisChr1.tsv", function (error, dataset) {
     var height = 500 - margin.top - margin.bottom;
     var startDomain = getMinimum();
     var endDomain = getMaximum();
+    
+    // Where to look and link
+    var dbGen = "http://www.ncbi.nlm.nih.gov/gene/?term=";
+    var dbGenome = "http://www.ncbi.nlm.nih.gov/genome/?term=";
+    var temp = null;
 
-    // flexibler und zusammenfassen, Puffer von 5% (*1,05)
+    // TBD flexibler und zusammenfassen, Puffer von 5% (*1,05)
     function getMinimum() {
         // parseInt, weil sonst String und lexikalisch sortiert
         var start1 = d3.min(
@@ -57,13 +77,17 @@ d3.tsv("files/ArabidopsisChr1.tsv", function (error, dataset) {
     var xAxis = d3.svg.axis()
             .scale(xScale)
             .orient("bottom")
-    //    .ticks(5);
+            .tickFormat(d3.format("s"))
+            .tickSize(-height) // grid
+            .ticks(10);
 
     // yAxis, scaling, text left
     var yAxis = d3.svg.axis()
             .scale(yScale)
             .orient("left")
-    //   .ticks(5);
+            .tickFormat(d3.format("s"))
+            .tickSize(-width) // grid
+            .ticks(10);
 
     // Zoom
     var zoom = d3.behavior.zoom()
@@ -76,14 +100,42 @@ d3.tsv("files/ArabidopsisChr1.tsv", function (error, dataset) {
     function zoomed() {
         svg.select(".x.axis").call(xAxis);
         svg.select(".y.axis").call(yAxis);
+        /*        svg.selectAll("circle")
+         .transition()
+         .duration(0)
+         .attr("cx", function (d) {
+         return xScale(d.Start1);
+         })
+         .attr("cy", function (d) {
+         return yScale(d.Start2);
+         })
+         .attr("r", function() {
+         return (d3.event.scale > 5) ? 5 : d3.event.scale;
+         });
+         */
+
         svg.selectAll("circle") // TBD, Punkte werden recht groß, kleiner?
-                .attr("transform", function (d) {
+                .attr("transform", function () {
                     return "translate(" + d3.event.translate + ")"
                             + " scale(" + d3.event.scale + ")"
                 });
     }
 
+    // zoomResetButton
+    d3.select("body")
+            .append("button")
+            .attr("type", "button")
+            .attr("id", "zoomReset")
+            .text("Reset view")
+            .on('click', function () {
+                d3.event.preventDefault();
+                zoom.scale(1);
+                zoom.translate([0, 0]);
+                zoomed();
+            });
+
     var tooltip = d3.select("div#tooltip");
+    var infowindow = d3.select("div#infowindow");
 
     // SVG
     var svg = d3.select("div#scatter")
@@ -91,25 +143,39 @@ d3.tsv("files/ArabidopsisChr1.tsv", function (error, dataset) {
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+            .attr("transform", "translate(" + margin.left
+                    + "," + margin.top + ")")
             .call(zoom);
 
-    svg.append("rect")  // Plothintergrund, damit von überall gezoomt werden kann, nicht nur auf Punkten.
+    svg.append("rect")  // Plothintergrund, damit von überall gezoomt 
+            //werden kann, nicht nur auf Punkten.
             .attr("width", width)
             .attr("height", height);
 
-    // xAxis as group, move
     // Gruppiert alles was Achsen angeht
     svg.append("g")
             .attr("class", "x axis") //Assign "axis" class
             .attr("transform", "translate(0," + (height) + ")")
             .call(xAxis);
+    // Add the text label for the X axis
+    svg.append("text")
+            .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.bottom) + ")")
+            .style("text-anchor", "middle")
+            .text(dataset[0].Genome1);
 
     // yAxis as group, move
     svg.append("g")
             .attr("class", "y axis") //Assign "axis" class
             .attr("transform", "translate(0,0)")
             .call(yAxis);
+    // Add the text label for the Y axis
+    svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - margin.left)
+            .attr("x", 0 - (height / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .text(dataset[0].Genome2);
 
     var plot = svg.append("svg")
             .attr("class", "plot") // c&p, anpassen TBD
@@ -129,17 +195,51 @@ d3.tsv("files/ArabidopsisChr1.tsv", function (error, dataset) {
                 // scaling the values to yAxis
                 return yScale(d.Start2);
             })
-            .attr("r", "1") // radius
+            .attr("r", function () {
+                // return (Math.random() * 1) + 0; 
+                return 1;
+            }) // radius
             .on("mouseover", function (d) {
                 tooltip.transition()
                         .duration(200)
                         .style("opacity", .9);
-                tooltip.select("#gen1").text(d.Gen1);  // mit Text füllen
+                tooltip.select("#gen1").text(d.Gen1); // mit Text füllen
                 tooltip.select("#gen2").text(d.Gen2);
                 tooltip.style("left", (d3.event.pageX) + "px") // xPos
-                        .style("top", (d3.event.pageY - 40) + "px");  // yPos              
-                d3.select(this).classed("hover", true);  // bunt
+                        .style("top", (d3.event.pageY - 40) + "px"); // yPos              
+                d3.select(this).classed("hover", true); // bunt
                 this.parentNode.appendChild(this); // Redraw
+            })
+            .on("click", function (d, i) {
+                infowindow.select("#genome1")
+                        .html("<a href='" + dbGenome + d.Genome1 + "'>"
+                                + d.Genome1 + "</a>");
+                infowindow.select("#gen1")
+                        .html("<a href='" + dbGen + d.Gen1 + "[sym]'>"
+                                + d.Gen1 + "</a>");
+                infowindow.select("#start1").text(d3.format(",")(d.Start1));
+                infowindow.select("#end1").text(d3.format(",")(d.End1));
+                infowindow.select("#length1")
+                        .text(d3.format(",")(Math.abs(d.End1 - d.Start1)));
+                //Update the tooltip genome2
+                infowindow.select("#genome2")
+                        .html("<a href='" + dbGenome + d.Genome2 + "'>"
+                                + d.Genome2 + "</a>");
+                infowindow.select("#gen2")
+                        .html("<a href='" + dbGen + d.Gen2 + "[sym]'>"
+                                + d.Gen2 + "</a>");
+                infowindow.select("#start2").text(d3.format(",")(d.Start2));
+                infowindow.select("#end2").text(d3.format(",")(d.End2));
+                infowindow.select("#length2")
+                        .text(d3.format(",")(Math.abs(d.End2 - d.Start2)));
+                // Update the tooltip info
+                infowindow.select("#info").text(d.Info);
+                if (temp !== null) {
+                    temp.classed("marked", false);  // normal
+                }
+                temp = d3.select(this)
+                temp.classed("marked", true) // bunt
+
             })
             .on("mouseout", function (d) {
                 tooltip.transition()
@@ -147,40 +247,4 @@ d3.tsv("files/ArabidopsisChr1.tsv", function (error, dataset) {
                         .style("opacity", 0);
                 d3.select(this).classed("hover", false);  // normal
             });
-
-
-
-
-    /*                //Update the tooltip genome1
-     * ON mouseclick infofenster füllen mit näheren infos
-     * 
-     tooltip.select("#genome1").text(d.Genome1);
-     tooltip.select("#gen1").text(d.Gen1);
-     tooltip.select("#start1").text(d.Start1);
-     tooltip.select("#end1").text(d.End1);
-     tooltip.select("#length1").text(Math.abs(d.End1 - d.Start1));
-     //Update the tooltip genome2
-     tooltip.select("#genome2").text(d.Genome2);
-     tooltip.select("#gen2").text(d.Gen2);
-     tooltip.select("#start2").text(d.Start2);
-     tooltip.select("#end2").text(d.End2);
-     tooltip.select("#length2").text(Math.abs(d.End2 - d.Start2));
-     // Update the tooltip info
-     tooltip.select("#info").text(d.Info);*/
-
-    /*
-     // Determine whether polygon is in left/right side of screen, and alter tooltip location accordingly:
-     if ($(this).attr("transform").substr(10,10)*1 > width/2) tooltip.classed("leftPos", true);
-     else tooltip.classed("leftPos", false);
-     
-     //Show the tooltip
-     if(($(this).attr('class') != 'inactive')) 
-     tooltip.classed("hidden", false);
-     
-     })
-     
-     http://bl.ocks.org/richardwestenra/129f64bfa2b0d48d27c9
-     
-     */
-
 });

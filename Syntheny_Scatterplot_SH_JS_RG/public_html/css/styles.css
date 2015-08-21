@@ -11,7 +11,7 @@ div.plot {
     float:none;
 }
 
-div.tooltip {
+#tooltip {
     position: absolute;
     text-align: center;
     width: 100px;
@@ -24,13 +24,26 @@ div.tooltip {
     pointer-events: none;
     opacity: 0;
 }
+
 circle {
-    fill: darkblue;
+    fill: blue;
+    //stroke: blue;
+    stroke-width: 1;
+}
+
+circle.marked {
+    fill: violet;
+}
+
+circle.saved {
+    fill: green;
 }
 
 circle.hover {
     fill: red;
 }
+
+
 
 rect {
     fill: transparent;
@@ -40,7 +53,7 @@ rect {
 .axis path,
 .axis line {
     fill: none;
-    stroke: black;
+    stroke: lightgray;
     shape-rendering: crispEdges;
 }
 
@@ -57,6 +70,34 @@ span.genname {
 }
 
 
+span.value {
+    border-bottom:1px solid #888;
+    font-size:16px;
+    padding-right:5px;
+    font-family:'TradeGothicNextW01-BdCm',sans-serif;
+    display: block;
+}
+span.key {
+    font-weight:normal;
+    font-size:12px;
+    display: block;
+}
+
+#infowindow {
+    position:absolute;
+    top:1px;
+    right:0;
+    padding:15px 20px;
+    width:30%;
+    border-radius: 8px;
+    background:lightsteelblue;
+    opacity: 0.9;
+    color:#616143;
+    height:418px;
+    z-index:1;
+    text-shadow:0 -1px 1px rgba(255,255,255,0.6);
+    box-shadow:1px 0 0 rgba(0,0,0,0.05) inset;
+} 
 
 /*
 
@@ -64,19 +105,6 @@ span.genname {
    cursor:move;
 }
 
-#tooltip {
-    position:absolute;
-       top:1px;
-    right:0;
-    padding:15px 20px;
-    width:30%;
-      background:rgba(254,253,245,0.8);
-        color:#616143;
-        height:418px;
-    z-index:1;
-    text-shadow:0 -1px 1px rgba(255,255,255,0.6);
-    box-shadow:1px 0 0 rgba(0,0,0,0.05) inset;
-} 
 
 
 
@@ -86,16 +114,6 @@ span.genname {
 
 #stats span {
     display:block;
-}
-.value {
-    border-bottom:1px solid #888;
-    font-size:16px;
-    padding-right:5px;
-    font-family:'TradeGothicNextW01-BdCm',sans-serif;
-}
-.key {
-    font-weight:normal;
-    font-size:12px;
 }
 
 */
