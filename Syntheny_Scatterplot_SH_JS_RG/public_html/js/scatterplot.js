@@ -1,16 +1,29 @@
 /* ToDo
  * 
- * Punkte beim Zoom klein lassen/anpassen
+ * Punkte beim Zoom klein lassen/anpassen, maximalgröße
  *      Tooltipbox ausrichten
- *      Markierung merken (index in dataset) und speichern? Danach weiterhovern.
- *      Merken zusätzlich via Doppelklick?
- *      Kleiner Tipp obsolet?
- *      Tooltip sperren wg. links anklicken, wie dann weiter suchen?
+ *      Tooltip sperren wg. links anklicken
+ *      
+ * Grafikbreite usw. dynamisch     
  * tiefer zoomen
+ * Auswahl in json exportieren 
+ * Beispieldatei (tsv) in json umbauen
+ * vllt tooltipbox und tabellenaufbau in funktion
+ * 
+ * in tabelle löschen durch klicken
+ * klicken in tabelle fokus in grafik?
+ * tabelle sortieren?
+ * 
+ * TBD im script
  * 
  * Nach Reset:
  * "Unerwarteter Wert translate(undefined) scale(undefined) beim Parsen des Attributs transform."
  * 
+ * 
+ * Aufräumen:
+ *      Einheitlich id/class ansprechen
+ *      Doku/Comments englisch
+ *      
  */
 
 //d3.json("files/2genomes.json", function (error, dataset) {
@@ -20,18 +33,19 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
 //    console.log(dataset);
 
     // Scatterplot Eckdaten
-    var margin = {top: 10, right: 0, bottom: 30, left: 80}
-    var width = 500 - margin.left - margin.right;
-    var height = 500 - margin.top - margin.bottom;
+    var margin = {top: 10, right: 0, bottom: 40, left: 70}
+    var width = 550 - margin.left - margin.right;
+    var height = 550 - margin.top - margin.bottom;
     var startDomain = getMinimum();
     var endDomain = getMaximum();
-    
+
     // Where to look and link
     var dbGen = "http://www.ncbi.nlm.nih.gov/gene/?term=";
     var dbGenome = "http://www.ncbi.nlm.nih.gov/genome/?term=";
+
     var temp = null;
 
-    // TBD flexibler und zusammenfassen, Puffer von 5% (*1,05)
+    // TBD flexibler und zusammenfassen
     function getMinimum() {
         // parseInt, weil sonst String und lexikalisch sortiert
         var start1 = d3.min(
@@ -134,7 +148,6 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                 zoomed();
             });
 
-    var tooltip = d3.select("div#tooltip");
     var infowindow = d3.select("div#infowindow");
 
     // SVG
@@ -200,17 +213,20 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                 return 1;
             }) // radius
             .on("mouseover", function (d) {
-                tooltip.transition()
-                        .duration(200)
-                        .style("opacity", .9);
-                tooltip.select("#gen1").text(d.Gen1); // mit Text füllen
-                tooltip.select("#gen2").text(d.Gen2);
-                tooltip.style("left", (d3.event.pageX) + "px") // xPos
-                        .style("top", (d3.event.pageY - 40) + "px"); // yPos              
+                /*               tooltip.transition()
+                 .duration(200)
+                 .style("opacity", .9);
+                 tooltip.select("#gen1").text(d.Gen1); // mit Text füllen
+                 tooltip.select("#gen2").text(d.Gen2);
+                 tooltip.style("left", (d3.event.pageX) + "px") // xPos
+                 .style("top", (d3.event.pageY - 40) + "px"); // yPos  */
                 d3.select(this).classed("hover", true); // bunt
                 this.parentNode.appendChild(this); // Redraw
-            })
-            .on("click", function (d, i) {
+
+                infowindow.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+
                 infowindow.select("#genome1")
                         .html("<a href='" + dbGenome + d.Genome1 + "'>"
                                 + d.Genome1 + "</a>");
@@ -234,15 +250,48 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                         .text(d3.format(",")(Math.abs(d.End2 - d.Start2)));
                 // Update the tooltip info
                 infowindow.select("#info").text(d.Info);
-                if (temp !== null) {
-                    temp.classed("marked", false);  // normal
-                }
-                temp = d3.select(this)
-                temp.classed("marked", true) // bunt
 
             })
+            .on("click", function (d, i) {
+
+                var currentDot = d3.select(this);
+
+                if (currentDot.attr("class").indexOf("saved") !== -1) {
+                    currentDot.classed("saved", false);
+
+                    // Get and remove row (Problems with id=int => id=IDint)
+                   d3.select("tr#ID"+i).remove();
+
+                }
+                else {
+                    // Mark the spot as clicked
+                    currentDot.classed("saved", true);
+
+                    // make/get row
+                    var row = d3.select("table#table").select("tbody")
+                            .append("tr")
+                            .attr("id", "ID"+i);
+
+                    // add stuff 
+                    row.append("td").html("<a href='" + dbGenome + d.Genome1 + "'>"
+                            + d.Genome1 + "</a>");
+                    row.append("td").html("<a href='" + dbGen + d.Gen1 + "[sym]'>"
+                            + d.Gen1 + "</a>");
+                    row.append("td").text(d3.format(",")(d.Start1));
+                    row.append("td").text(d3.format(",")(d.End1));
+                    row.append("td").text(d3.format(",")(Math.abs(d.End1 - d.Start1)));
+                    row.append("td").html("<a href='" + dbGenome + d.Genome2 + "'>"
+                            + d.Genome2 + "</a>");
+                    row.append("td").html("<a href='" + dbGen + d.Gen2 + "[sym]'>"
+                            + d.Gen2 + "</a>");
+                    row.append("td").text(d3.format(",")(d.Start2));
+                    row.append("td").text(d3.format(",")(d.End2));
+                    row.append("td").text(d3.format(",")(Math.abs(d.End2 - d.Start2)));
+                    row.append("td").text(d.Info);
+                }
+            })
             .on("mouseout", function (d) {
-                tooltip.transition()
+                infowindow.transition()
                         .duration(500)
                         .style("opacity", 0);
                 d3.select(this).classed("hover", false);  // normal

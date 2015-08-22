@@ -26,9 +26,9 @@ div.plot {
 }
 
 circle {
-    fill: blue;
-    //stroke: blue;
-    stroke-width: 1;
+    fill: DodgerBlue;
+    stroke: white; 
+    stroke-width: 0.1;
 }
 
 circle.marked {
@@ -69,7 +69,6 @@ span.genname {
     fill: #666;
 }
 
-
 span.value {
     border-bottom:1px solid #888;
     font-size:16px;
@@ -91,29 +90,10 @@ span.key {
     width:30%;
     border-radius: 8px;
     background:lightsteelblue;
-    opacity: 0.9;
+    opacity: 0;
     color:#616143;
     height:418px;
     z-index:1;
     text-shadow:0 -1px 1px rgba(255,255,255,0.6);
     box-shadow:1px 0 0 rgba(0,0,0,0.05) inset;
-} 
-
-/*
-
-.plot {
-   cursor:move;
 }
-
-
-
-
-#tooltip.leftPos {
-    left:60px;
-}
-
-#stats span {
-    display:block;
-}
-
-*/
