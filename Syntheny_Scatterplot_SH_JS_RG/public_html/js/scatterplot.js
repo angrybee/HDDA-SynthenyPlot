@@ -13,6 +13,7 @@
  * klicken in tabelle fokus in grafik?
  * tabelle sortieren?
  * 
+ * fehlermeldung beim einlesen?
  * TBD im script
  * 
  * Nach Reset:
@@ -35,8 +36,7 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
     var margin = {top: 10, right: 0, bottom: 40, left: 70}
     var width = 550 - margin.left - margin.right;
     var height = 550 - margin.top - margin.bottom;
-    var startDomain = getMinimum();
-    var endDomain = getMaximum();
+    var domain = getAxisInit();
 
     // Where to look and link
     var dbGen = "http://www.ncbi.nlm.nih.gov/gene/?term=";
@@ -44,46 +44,33 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
 
     var temp = null;
 
-    // TBD flexibler und zusammenfassen
-    function getMinimum() {
+    function getAxisInit() {
+        var o = {};
+        // Make array and push other to it
         // parseInt, weil sonst String und lexikalisch sortiert
-        var start1 = d3.min(
-                dataset.map(function (d) {
-                    return parseInt(d.Start1);
-                }));
-        var start2 = d3.min(
-                dataset.map(function (d) {
-                    return parseInt(d.Start2);
-                }));
-        if (start1 < start2)
-            return start1;
-        else
-            return start2;
+        var startData = dataset.map(function (d) {
+            return parseInt(d.Start1);
+        });
+        //d3.merge will nicht so wie ich will
+        Array.prototype.push.apply(startData,
+                function () {
+                    return dataset.map(function (d) {
+                        return parseInt(d.Start2);
+                    });
+                });
+        o.min = d3.min(startData);
+        o.max = d3.max(startData);
+        return  o;
     }
 
-    function getMaximum() {
-        var end1 = d3.max(
-                dataset.map(function (d) {
-                    return parseInt(d.Start1);
-                }));
-        var end2 = d3.max(
-                dataset.map(function (d) {
-                    return parseInt(d.Start2);
-                }));
-        if (end1 > end2)
-            return end1;
-        else
-            return end2;
-    }
-
-    // Scaling xAxis
+     // Scaling xAxis
     var xScale = d3.scale.linear()
-            .domain([startDomain, endDomain]) // Original scaling [min, max]
+            .domain([domain.min, domain.max]) // Original scaling [min, max]
             .range([0, width]); // New scaling [min, max]
 
     // Scaling yAxis
     var yScale = d3.scale.linear()
-            .domain([startDomain, endDomain]) // Original scaling [min, max]
+            .domain([domain.min, domain.max]) // Original scaling [min, max]
             .range([height, 0]); // New scaling [min, max] upsidedown
 
     // xAxis, scaling, text bottom
