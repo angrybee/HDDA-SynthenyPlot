@@ -10,7 +10,6 @@
  * Beispieldatei (tsv) in json umbauen
  * vllt tooltipbox und tabellenaufbau in funktion
  * 
- * in tabelle löschen durch klicken
  * klicken in tabelle fokus in grafik?
  * tabelle sortieren?
  * 
@@ -148,6 +147,8 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                 zoomed();
             });
 
+
+
     var infowindow = d3.select("div#infowindow");
 
     // SVG
@@ -212,6 +213,9 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                 // return (Math.random() * 1) + 0; 
                 return 1;
             }) // radius
+            .attr("id", function (d, i) {
+                return "ID" + i;
+            })
             .on("mouseover", function (d) {
                 /*               tooltip.transition()
                  .duration(200)
@@ -250,27 +254,19 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                         .text(d3.format(",")(Math.abs(d.End2 - d.Start2)));
                 // Update the tooltip info
                 infowindow.select("#info").text(d.Info);
-
             })
             .on("click", function (d, i) {
-
-                var currentDot = d3.select(this);
-
-                if (currentDot.attr("class").indexOf("saved") !== -1) {
-                    currentDot.classed("saved", false);
-
-                    // Get and remove row (Problems with id=int => id=IDint)
-                   d3.select("tr#ID"+i).remove();
-
+                if (d3.select(this).attr("class").indexOf("saved") !== -1) {
+                    removeSaved(i);
                 }
                 else {
                     // Mark the spot as clicked
-                    currentDot.classed("saved", true);
+                    d3.select(this).classed("saved", true);
 
                     // make/get row
                     var row = d3.select("table#table").select("tbody")
                             .append("tr")
-                            .attr("id", "ID"+i);
+                            .attr("id", "ID" + i);
 
                     // add stuff 
                     row.append("td").html("<a href='" + dbGenome + d.Genome1 + "'>"
@@ -287,13 +283,26 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                     row.append("td").text(d3.format(",")(d.Start2));
                     row.append("td").text(d3.format(",")(d.End2));
                     row.append("td").text(d3.format(",")(Math.abs(d.End2 - d.Start2)));
-                    row.append("td").text(d.Info);
+                    row.append("td").text(d.Info)
+                    row.append("button")
+                            .attr("type", "button")
+                            .attr("id", i)
+                            .text("X")
+                            .on('click', function () {
+                                removeSaved(d3.select(this).attr("id"));
+                            });
                 }
             })
             .on("mouseout", function (d) {
                 infowindow.transition()
                         .duration(500)
                         .style("opacity", 0);
-                d3.select(this).classed("hover", false);  // normal
+                d3.select(this).classed("hover", false); // normal
             });
+
+    // Get and remove row und mark (Problems with id=int => id=IDint)
+    function removeSaved(i) {
+        d3.select("tr#ID" + i).remove();
+        d3.select("circle#ID" + i).classed("saved", false);
+    }
 });
