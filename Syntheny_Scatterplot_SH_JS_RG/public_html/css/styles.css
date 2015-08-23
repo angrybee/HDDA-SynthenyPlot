@@ -3,105 +3,113 @@ div {
     border-style:solid; 
     border-width:1px;
     border-color:pink;
+
+    padding:10px;
 }
-div.list {
-    float:left;
+div.head {
+    display:none;
 }
-div.plot {
-    float:none;
+div.buttons {
+    display:flex;
 }
 
-#tooltip {
-    position: absolute;
-    text-align: center;
-    width: 100px;
-    height: 40px;
-    padding: 2px;
-    font: 12px sans-serif;
-    background: lightsteelblue;
-    border: 0px;
-    border-radius: 8px;
-    pointer-events: none;
-    opacity: 0;
+div.middle{
+    display:flex;
+    flex-direction:row;
+}
+
+div.infowindow {
+    border-radius:8px;
+    background:#ccccff;
+    opacity:0;
+    color:#616143;
 }
 
 circle {
-    fill: DodgerBlue;
-    stroke: white; 
-    stroke-width: 0.1;
+    fill:DodgerBlue;
+    stroke:white; 
+    stroke-width:0.1;
 }
 
 circle.marked {
-    fill: violet;
+    fill:violet;
 }
 
 circle.saved {
-    fill: green;
+    fill:green;
 }
 
 circle.hover {
-    fill: red;
+    fill:red;
 }
 
-
-
 rect {
-    fill: transparent;
-    shape-rendering: crispEdges;
+    fill:transparent;
+    shape-rendering:crispEdges;
+}
+
+.axis text {
+    font-family:sans-serif;
+    font-size:10px;
+    fill:#666;
+}
+
+.axis.label {
+    font-family:sans-serif;
+    font-size:14px;
+    font-weight:bold;
+    fill:#666;
 }
 
 .axis path,
 .axis line {
-    fill: none;
-    stroke: lightgray;
-    shape-rendering: crispEdges;
-}
-
-.axis text {
-    font-family: sans-serif;
-    font-size: 11px;
-    fill: #666;
+    fill:none;
+    stroke:lightgray;
+    shape-rendering:crispEdges;
 }
 
 span.genname {
     font-size:16px;
-    font-family: sans-serif;
-    fill: #666;
+    font-family:sans-serif;
+    fill:#666;
 }
 
 span.value {
     border-bottom:1px solid #888;
     font-size:16px;
     padding-right:5px;
-    font-family:'TradeGothicNextW01-BdCm',sans-serif;
-    display: block;
+    font-family:sans-serif;
+    display:block;
 }
 span.key {
     font-weight:normal;
     font-size:12px;
-    display: block;
+    display:block;
 }
 
-#infowindow {
-    position:absolute;
-    top:1px;
-    right:0;
-    padding:15px 20px;
-    width:30%;
-    border-radius: 8px;
-    background:lightsteelblue;
-    opacity: 0;
-    color:#616143;
-    height:418px;
-    z-index:1;
-    text-shadow:0 -1px 1px rgba(255,255,255,0.6);
-    box-shadow:1px 0 0 rgba(0,0,0,0.05) inset;
+table.hidden {
+    display:none;
+}
+
+table.sortable {
+    border:1px solid darkslategrey;
+    border-collapse:collapse;
+    font-size:14px;
+    font-family:sans-serif;
+}
+
+table.sortable th, td {
+    border:1px solid darkslategrey;
 }
 
 /* Sortable tables example*/
 table.sortable thead {
-    background-color:#eee;
+    background-color:lightgray;
     color:#666666;
-    font-weight: bold;
-    cursor: default;
+    font-weight:bold;
+    cursor:default;
+}
+
+tr.newAdded {
+    background-color:lightskyblue;
 }

@@ -7,15 +7,17 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="http://d3js.org/d3.v3.min.js"></script>
         <script src="js/functions.js" type="text/javascript"></script>
-        <script src="js/libs/sorttable.js"></script>
+        <!--       <script src="js/libs/sorttable.js"></script> 
+       Always sorts text, also if only pure numbers are in the field
+        -->
         <script src="js/scatterplot.js" type="text/javascript"></script>
     </head>
     <body>
+        <div class="head"></div>
         <div class="middle">
+            <div class="plot" id="plot"></div>
             <div id="infowindow" class="infowindow">
-                <h3 id="name"></h3>
-                <p id="desc"></p>
-                <ul id="stats">
+                <ul>
                     <li>
                         <span class="value" id="genome1"></span>
                         <span class="key">First Genome</span>
@@ -23,6 +25,10 @@
                             <li>
                                 <span class="value" id="gen1"></span>
                                 <span class="key">Gen in first genome</span>
+                            </li>
+                            <li>
+                                <span class="value" id="orientation1"></span>
+                                <span class="key">Orientation</span>
                             </li>
                             <li>
                                 <span class="value" id="start1"></span>
@@ -48,6 +54,10 @@
                                 <span class="key">Gen in second genome</span>
                             </li>
                             <li>
+                                <span class="value" id="orientation2"></span>
+                                <span class="key">Orientation</span>
+                            </li>
+                            <li>
                                 <span class="value" id="start2"></span>
                                 <span class="key">Start position in second genome</span>
                             </li>
@@ -68,56 +78,33 @@
                     </li>
                 </ul>
             </div>
-            <div class="scatter" id="scatter">
-            </div>
+
         </div>
-        <div class="tooltip" id="tooltip">
-            <span class="genname" id="gen1"></span>
-            <span class="genname" id="gen2"></span>
-        </div>
+        <div id="buttons"></div>
         <div class="table" id="table">
-            <table class="sortable" id="table">
+            <table class="sortable hidden" id="table">
                 <thead>
                     <tr>
-                        <th>
-                            Genname1
-                        </th>
-                        <th>
-                            Gen1
-                        </th>
-                        <th>
-                            Start1
-                        </th>
-                        <th>
-                            End1
-                        </th>
-                        <th>
-                            Length1
-                        </th>
-                        <th>
-                            Genname2
-                        </th>
-                        <th>
-                            Gen2
-                        </th>
-                        <th>
-                            Start2
-                        </th>
-                        <th>
-                            End2
-                        </th>
-                        <th>
-                            Length2
-                        </th>                 
-                        <th>
-                            Common Info
-                        </th>
+                        <th>1st Genome</th>
+                        <th>Gen</th>
+                        <th>Orientation</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Length</th>
+                        <th>2nd Genome</th>
+                        <th>Gen</th>
+                        <th>Orientation</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Length</th>                 
+                        <th>Info</th>
+                        <th>Del</th>
                     </tr>
                 </thead>
                 <tbody>
                 </tbody>
             </table>
         </div>
-        <noscript>Please activate JavaScript!</noscript>
+        <noscript>Please activate JavaScript!</noscript>   
     </body>
 </html>

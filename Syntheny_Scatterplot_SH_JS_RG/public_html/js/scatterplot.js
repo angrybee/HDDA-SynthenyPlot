@@ -1,6 +1,5 @@
 /* ToDo
  * 
- *      Tooltipbox ausrichten
  *      Tooltip sperren wg. links anklicken
  *      
  * Grafikbreite usw. dynamisch ?    
@@ -9,16 +8,13 @@
  * Beispieldatei (tsv) in json umbauen
  * vllt tooltipbox und tabellenaufbau in funktion
  * 
+ * bild speichern?
+ * 
  * klicken in tabelle fokus in grafik?
  * 
  * fehlermeldung beim einlesen?
- * TBD im script
  * 
  * tabelle autosort beim hinzufügen
- *      hervorheben neuer eintrag
- * 
- * Nach Reset:
- * "Unerwarteter Wert translate(undefined) scale(undefined) beim Parsen des Attributs transform."
  * 
  * 
  * Aufräumen:
@@ -33,11 +29,11 @@
 //d3.json("files/2genomes.json", function (error, dataset) {
 d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
     if (error)
-        return console.warn(error); // TBD
+        return console.warn(error);
 //    console.log(dataset);
 
     // Scatterplot, the technical data
-    var margin = {top: 10, right: 0, bottom: 40, left: 70};
+    var margin = {top: 10, right: 10, bottom: 45, left: 70};
     var width = 550 - margin.left - margin.right;
     var height = 550 - margin.top - margin.bottom;
     var domain = getDomainData();
@@ -47,6 +43,8 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
     // Where to look and link
     var dbGen = "http://www.ncbi.nlm.nih.gov/gene/?term=";
     var dbGenome = "http://www.ncbi.nlm.nih.gov/genome/?term=";
+
+    var tempRow = null;
 
     function getDomainData() {
         var o = {};
@@ -112,21 +110,20 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                     return yScale(d.Start2);
                 })
                 .attr("r", function () {
-                    /* Use new scale or the maxRadius to get "normal" sized
+                    /* 
+                     * Use new scale or the maxRadius to get "normal" sized
                      * dots. Reset needs the original minRadius.
                      */
-                    if (d3.event.scale !== null) {
-                        if (d3.event.scale > maxRadius) {
-                            return maxRadius;
-                        }
+                    if (d3.event.scale > maxRadius)
+                        return maxRadius;
+                    if (d3.event.scale > 1)
                         return d3.event.scale;
-                    }
                     return minRadius;
                 });
     }
 
     // zoomResetButton
-    d3.select("body")
+    d3.select("div#buttons")
             .append("button")
             .attr("type", "button")
             .attr("id", "zoomReset")
@@ -141,7 +138,7 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
     var infowindow = d3.select("div#infowindow");
 
     // Outer SVG
-    var svg = d3.select("div#scatter")
+    var svg = d3.select("div#plot")
             .append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
@@ -157,22 +154,24 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
 
     // Group the xAxis, move it to the bottom
     svg.append("g")
-            .attr("class", "x axis")
+            .attr("class", "axis")
             .attr("transform", "translate(0," + (height) + ")")
             .call(xAxis);
     // Add the text label for the xAxis
     svg.append("text")
-            .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.bottom) + ")")
+            .attr("class", "axis label")
+            .attr("transform", "translate(" + (width / 2) + " ," + (height - 10 + margin.bottom) + ")")
             .style("text-anchor", "middle")
             .text(dataset[0].Genome1);
 
     // Group the yAxis
     svg.append("g")
-            .attr("class", "y axis")
+            .attr("class", "axis")
             .attr("transform", "translate(0,0)")
             .call(yAxis);
     // Add the text label for the yAxis
     svg.append("text")
+            .attr("class", "axis label")
             .attr("transform", "rotate(-90)")
             .attr("y", 0 - margin.left)
             .attr("x", 0 - (height / 2))
@@ -180,7 +179,7 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
             .style("text-anchor", "middle")
             .text(dataset[0].Genome2);
 
-    // Inner SVG
+    // Inner SVG with data
     var plot = svg.append("svg")
             .attr("class", "plot")
             .attr("width", width)
@@ -208,33 +207,39 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                  .duration(200)
                  .style("opacity", .9);
                  tooltip.select("#gen1").text(d.Gen1); // mit Text füllen
-                 tooltip.select("#gen2").text(d.Gen2);
-                 tooltip.style("left", (d3.event.pageX) + "px") // xPos
-                 .style("top", (d3.event.pageY - 40) + "px"); // yPos  */
+                 tooltip.select("#gen2").text(d.Gen2); */
+                // infowindow.style("left", (d3.event.pageX) + "px") // xPos
+                //   .style("top", (d3.event.pageY - 40) + "px"); // yPos
                 d3.select(this).classed("hover", true); // bunt
                 this.parentNode.appendChild(this); // Redraw
 
                 infowindow.transition()
                         .duration(200)
-                        .style("opacity", .9);
+                        .style("opacity", 0.9);
 
                 infowindow.select("#genome1")
-                        .html("<a href='" + dbGenome + d.Genome1 + "'>"
+                        .html("<a href='" + dbGenome + d.Genome1
+                                + "' target='_blank'>"
                                 + d.Genome1 + "</a>");
                 infowindow.select("#gen1")
-                        .html("<a href='" + dbGen + d.Gen1 + "[sym]'>"
+                        .html("<a href='" + dbGen + d.Gen1
+                                + "[sym]' target='_blank'>"
                                 + d.Gen1 + "</a>");
+                infowindow.select("#orientation1").text(getOrientation(d.Start1, d.End1));
                 infowindow.select("#start1").text(d3.format(",")(d.Start1));
                 infowindow.select("#end1").text(d3.format(",")(d.End1));
                 infowindow.select("#length1")
                         .text(d3.format(",")(Math.abs(d.End1 - d.Start1)));
                 //Update the tooltip genome2
                 infowindow.select("#genome2")
-                        .html("<a href='" + dbGenome + d.Genome2 + "'>"
+                        .html("<a href='" + dbGenome + d.Genome2
+                                + "' target='_blank'>"
                                 + d.Genome2 + "</a>");
                 infowindow.select("#gen2")
-                        .html("<a href='" + dbGen + d.Gen2 + "[sym]'>"
+                        .html("<a href='" + dbGen + d.Gen2
+                                + "[sym]' target='_blank'>"
                                 + d.Gen2 + "</a>");
+                infowindow.select("#orientation2").text(getOrientation(d.Start2, d.End2));
                 infowindow.select("#start2").text(d3.format(",")(d.Start2));
                 infowindow.select("#end2").text(d3.format(",")(d.End2));
                 infowindow.select("#length2")
@@ -249,28 +254,46 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                 else {
                     // Mark the spot as clicked
                     d3.select(this).classed("saved", true);
-                    // Remove the sortable tags (classes/elements)
-                    d3.select("th.sorttable_sorted").classed("sorttable_sorted", false);
-                    d3.select("span#sorttable_sortrevind").remove();
-                    d3.select("span#sorttable_sortfwdind").remove();
+                    /*
+                     // Remove the sortable tags (classes/elements)
+                     d3.select("th.sorttable_sorted").classed("sorttable_sorted", false);
+                     d3.select("span#sorttable_sortrevind").remove();
+                     d3.select("span#sorttable_sortfwdind").remove();
+                     */
+
+                    // remove newAdded
+                    if (tempRow !== null)
+                        tempRow.classed("newAdded", false);
+                    else
+                        d3.select("table#table").classed("hidden", false);
 
                     // make/get row
                     var row = d3.select("table#table").select("tbody")
                             .append("tr")
-                            .attr("id", "ID" + i);
+                            .attr("id", "ID" + i)
+                            .classed("newAdded", true);
+
+                    tempRow = row; // save it for later to remove mark
 
                     // add stuff 
-                    row.append("td").html("<a href='" + dbGenome + d.Genome1 + "'>"
+                    row.append("td").html("<a href='" + dbGenome + d.Genome1
+                            + "' target='_blank'>"
                             + d.Genome1 + "</a>");
-                    row.append("td").html("<a href='" + dbGen + d.Gen1 + "[sym]'>"
+                    row.append("td").html("<a href='" + dbGen + d.Gen1
+                            + "[sym]' target='_blank'>"
                             + d.Gen1 + "</a>");
+                    row.append("td").text(getOrientation(d.Start1, d.End1));
                     row.append("td").text(d3.format(",")(d.Start1));
                     row.append("td").text(d3.format(",")(d.End1));
                     row.append("td").text(d3.format(",")(Math.abs(d.End1 - d.Start1)));
-                    row.append("td").html("<a href='" + dbGenome + d.Genome2 + "'>"
+
+                    row.append("td").html("<a href='" + dbGenome + d.Genome2
+                            + "' target='_blank'>"
                             + d.Genome2 + "</a>");
-                    row.append("td").html("<a href='" + dbGen + d.Gen2 + "[sym]'>"
+                    row.append("td").html("<a href='" + dbGen + d.Gen2
+                            + "[sym]' target='_blank'>"
                             + d.Gen2 + "</a>");
+                    row.append("td").text(getOrientation(d.Start2, d.End2));
                     row.append("td").text(d3.format(",")(d.Start2));
                     row.append("td").text(d3.format(",")(d.End2));
                     row.append("td").text(d3.format(",")(Math.abs(d.End2 - d.Start2)));
@@ -291,9 +314,30 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                 d3.select(this).classed("hover", false); // normal
             });
 
+    // Get the orientation with given start and end of a gen
+    function getOrientation(firstValue, secondValue) {
+        if (secondValue > firstValue)
+            return "forward";
+        return "reverse";
+    }
+
     // Get and remove row und mark (Problems with id=int => id=IDint)
     function removeSaved(i) {
         d3.select("tr#ID" + i).remove();
         d3.select("circle#ID" + i).classed("saved", false);
+        // Hide table
+        if (d3.select("circle.saved")[0][0] === null)
+            d3.select("table#table").classed("hidden", true);
     }
+
+    d3.selectAll("a").attr("target", "_blank");
+    /*
+     d3.select("div#buttons")
+     .append("button")
+     .attr("type", "button")
+     .attr("id", "save")
+     .text("Save")
+     .on("click", function () {
+     });
+     */
 });
