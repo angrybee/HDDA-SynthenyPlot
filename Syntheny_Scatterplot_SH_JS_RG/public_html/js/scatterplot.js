@@ -1,20 +1,21 @@
 /* ToDo
  * 
- * Punkte beim Zoom klein lassen/anpassen, maximalgröße
  *      Tooltipbox ausrichten
  *      Tooltip sperren wg. links anklicken
  *      
- * Grafikbreite usw. dynamisch     
- * tiefer zoomen
+ * Grafikbreite usw. dynamisch ?    
+ * fest zoomen (-bereich)  http://computationallyendowed.com/blog/2013/01/21/bounded-panning-in-d3.html
  * Auswahl in json exportieren 
  * Beispieldatei (tsv) in json umbauen
  * vllt tooltipbox und tabellenaufbau in funktion
  * 
  * klicken in tabelle fokus in grafik?
- * tabelle sortieren?
  * 
  * fehlermeldung beim einlesen?
  * TBD im script
+ * 
+ * tabelle autosort beim hinzufügen
+ *      hervorheben neuer eintrag
  * 
  * Nach Reset:
  * "Unerwarteter Wert translate(undefined) scale(undefined) beim Parsen des Attributs transform."
@@ -23,6 +24,7 @@
  * Aufräumen:
  *      Einheitlich id/class ansprechen
  *      Doku/Comments englisch
+ *      tabelle zeilenweiser farbwechsel
  *      
  */
 
@@ -32,26 +34,26 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
         return console.warn(error); // TBD
 //    console.log(dataset);
 
-    // Scatterplot Eckdaten
+    // Scatterplot, the technical data
     var margin = {top: 10, right: 0, bottom: 40, left: 70}
     var width = 550 - margin.left - margin.right;
     var height = 550 - margin.top - margin.bottom;
-    var domain = getAxisInit();
+    var domain = getDomainData();
+    var minRadius = 1;
+    var maxRadius = 5;
 
     // Where to look and link
     var dbGen = "http://www.ncbi.nlm.nih.gov/gene/?term=";
     var dbGenome = "http://www.ncbi.nlm.nih.gov/genome/?term=";
 
-    var temp = null;
-
-    function getAxisInit() {
+    function getDomainData() {
         var o = {};
-        // Make array and push other to it
-        // parseInt, weil sonst String und lexikalisch sortiert
+        // Make an array and push another
+        // parseInt() if data stored as strings
         var startData = dataset.map(function (d) {
             return parseInt(d.Start1);
         });
-        //d3.merge will nicht so wie ich will
+        // d3.merge didn't work
         Array.prototype.push.apply(startData,
                 function () {
                     return dataset.map(function (d) {
@@ -63,7 +65,7 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
         return  o;
     }
 
-     // Scaling xAxis
+    // Scaling xAxis
     var xScale = d3.scale.linear()
             .domain([domain.min, domain.max]) // Original scaling [min, max]
             .range([0, width]); // New scaling [min, max]
@@ -91,33 +93,33 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
 
     // Zoom
     var zoom = d3.behavior.zoom()
-            .x(xScale)  // Umskalieren
+            .x(xScale)  // Set new scales
             .y(yScale)
-            .scaleExtent([1, 12])  // TBD, anpassen
+            .scaleExtent([1, 100])  // ZoomInFactor
             .on("zoom", zoomed);
 
-    // Zoomfunction, zoom axis and dots
+    // Zoomfunction, zoomes axis and dots
     function zoomed() {
         svg.select(".x.axis").call(xAxis);
         svg.select(".y.axis").call(yAxis);
-        /*        svg.selectAll("circle")
-         .transition()
-         .duration(0)
-         .attr("cx", function (d) {
-         return xScale(d.Start1);
-         })
-         .attr("cy", function (d) {
-         return yScale(d.Start2);
-         })
-         .attr("r", function() {
-         return (d3.event.scale > 5) ? 5 : d3.event.scale;
-         });
-         */
-
-        svg.selectAll("circle") // TBD, Punkte werden recht groß, kleiner?
-                .attr("transform", function () {
-                    return "translate(" + d3.event.translate + ")"
-                            + " scale(" + d3.event.scale + ")"
+        svg.selectAll("circle")
+                .attr("cx", function (d) {
+                    return xScale(d.Start1);
+                })
+                .attr("cy", function (d) {
+                    return yScale(d.Start2);
+                })
+                .attr("r", function () {
+                    /* Use new scale or the maxRadius to get "normal" sized
+                     * dots. Reset needs the original minRadius.
+                     */
+                    if (d3.event.scale != null) {
+                        if (d3.event.scale > maxRadius) {
+                            return maxRadius;
+                        }
+                        return d3.event.scale;
+                    }
+                    return minRadius;
                 });
     }
 
@@ -134,11 +136,9 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                 zoomed();
             });
 
-
-
     var infowindow = d3.select("div#infowindow");
 
-    // SVG
+    // Outer SVG
     var svg = d3.select("div#scatter")
             .append("svg")
             .attr("width", width + margin.left + margin.right)
@@ -148,28 +148,28 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                     + "," + margin.top + ")")
             .call(zoom);
 
-    svg.append("rect")  // Plothintergrund, damit von überall gezoomt 
-            //werden kann, nicht nur auf Punkten.
+    // Plotbackground
+    svg.append("rect")
             .attr("width", width)
             .attr("height", height);
 
-    // Gruppiert alles was Achsen angeht
+    // Group the xAxis, move it to the bottom
     svg.append("g")
-            .attr("class", "x axis") //Assign "axis" class
+            .attr("class", "x axis")
             .attr("transform", "translate(0," + (height) + ")")
             .call(xAxis);
-    // Add the text label for the X axis
+    // Add the text label for the xAxis
     svg.append("text")
             .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.bottom) + ")")
             .style("text-anchor", "middle")
             .text(dataset[0].Genome1);
 
-    // yAxis as group, move
+    // Group the yAxis
     svg.append("g")
-            .attr("class", "y axis") //Assign "axis" class
+            .attr("class", "y axis")
             .attr("transform", "translate(0,0)")
             .call(yAxis);
-    // Add the text label for the Y axis
+    // Add the text label for the yAxis
     svg.append("text")
             .attr("transform", "rotate(-90)")
             .attr("y", 0 - margin.left)
@@ -178,8 +178,9 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
             .style("text-anchor", "middle")
             .text(dataset[0].Genome2);
 
+    // Inner SVG
     var plot = svg.append("svg")
-            .attr("class", "plot") // c&p, anpassen TBD
+            .attr("class", "plot")
             .attr("width", width)
             .attr("height", height);
 
@@ -196,10 +197,7 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                 // scaling the values to yAxis
                 return yScale(d.Start2);
             })
-            .attr("r", function () {
-                // return (Math.random() * 1) + 0; 
-                return 1;
-            }) // radius
+            .attr("r", minRadius) // radius
             .attr("id", function (d, i) {
                 return "ID" + i;
             })
@@ -249,6 +247,10 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                 else {
                     // Mark the spot as clicked
                     d3.select(this).classed("saved", true);
+                    // Remove the sortable tags (classes/elements)
+                    d3.select("th.sorttable_sorted").classed("sorttable_sorted", false);
+                    d3.select("span#sorttable_sortrevind").remove();
+                    d3.select("span#sorttable_sortfwdind").remove();
 
                     // make/get row
                     var row = d3.select("table#table").select("tbody")
