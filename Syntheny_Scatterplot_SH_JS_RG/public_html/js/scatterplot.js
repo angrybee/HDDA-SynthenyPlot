@@ -28,6 +28,8 @@
  *      
  */
 
+/* global d3 */
+
 //d3.json("files/2genomes.json", function (error, dataset) {
 d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
     if (error)
@@ -35,7 +37,7 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
 //    console.log(dataset);
 
     // Scatterplot, the technical data
-    var margin = {top: 10, right: 0, bottom: 40, left: 70}
+    var margin = {top: 10, right: 0, bottom: 40, left: 70};
     var width = 550 - margin.left - margin.right;
     var height = 550 - margin.top - margin.bottom;
     var domain = getDomainData();
@@ -113,7 +115,7 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                     /* Use new scale or the maxRadius to get "normal" sized
                      * dots. Reset needs the original minRadius.
                      */
-                    if (d3.event.scale != null) {
+                    if (d3.event.scale !== null) {
                         if (d3.event.scale > maxRadius) {
                             return maxRadius;
                         }
@@ -272,7 +274,7 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                     row.append("td").text(d3.format(",")(d.Start2));
                     row.append("td").text(d3.format(",")(d.End2));
                     row.append("td").text(d3.format(",")(Math.abs(d.End2 - d.Start2)));
-                    row.append("td").text(d.Info)
+                    row.append("td").text(d.Info);
                     row.append("button")
                             .attr("type", "button")
                             .attr("id", i)
