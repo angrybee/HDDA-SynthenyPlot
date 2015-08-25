@@ -1,26 +1,31 @@
-/* ToDo
+/* ToDo:
+ * Lukas Wunschliste:
+ * Matrix mit allen Daten als Übersicht, wie sein Bsp., klick drauf zur Einzelübersicht
+ * Bereich ziehen in Plot zur Auswahl (wäre schick)
  * 
- *      Tooltip sperren wg. links anklicken
- *      
+ * Reparieren/Anpassen:
+ * Auswahl Gene/Links Tooltips per Rechtsklick
+ * Achse skaliert nicht mehr, reparieren
+ * Weißer Rand der Punkte dicker in Detailansicht
+ * Wenn Tabelle einmal weg, kommt sie nicht mehr wieder beim Einfügen von Daten 
+ * 
+ * Überlegungen:
  * Grafikbreite usw. dynamisch ?    
  * fest zoomen (-bereich)  http://computationallyendowed.com/blog/2013/01/21/bounded-panning-in-d3.html
  * Auswahl in json exportieren 
  * Beispieldatei (tsv) in json umbauen
  * vllt tooltipbox und tabellenaufbau in funktion
- * 
  * bild speichern?
- * 
  * klicken in tabelle fokus in grafik?
- * 
  * fehlermeldung beim einlesen?
- * 
- * tabelle autosort beim hinzufügen
+ * tabelle zeilenweiser farbwechsel*
+ * sorttable funktionsfähig machen (sortiert lexikalisch)
+ *              tabelle autosort beim Hinzufügen
  * 
  * 
  * Aufräumen:
  *      Einheitlich id/class ansprechen
  *      Doku/Comments englisch
- *      tabelle zeilenweiser farbwechsel
  *      
  */
 
