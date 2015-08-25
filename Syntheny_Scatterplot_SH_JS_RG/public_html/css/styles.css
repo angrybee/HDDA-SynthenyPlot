@@ -28,7 +28,7 @@ div.infowindow {
 circle {
     fill:DodgerBlue;
     stroke:white; 
-    stroke-width:0.1;
+    stroke-width:0.2;
 }
 
 circle.marked {

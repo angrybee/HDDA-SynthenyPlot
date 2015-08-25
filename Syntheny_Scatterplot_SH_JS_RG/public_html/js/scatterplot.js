@@ -2,12 +2,11 @@
  * Lukas Wunschliste:
  * Matrix mit allen Daten als Übersicht, wie sein Bsp., klick drauf zur Einzelübersicht
  * Bereich ziehen in Plot zur Auswahl (wäre schick)
+ *      http://bl.ocks.org/mbostock/4063663
+ *      Stichwort brushing
  * 
  * Reparieren/Anpassen:
  * Auswahl Gene/Links Tooltips per Rechtsklick
- * Achse skaliert nicht mehr, reparieren
- * Weißer Rand der Punkte dicker in Detailansicht
- * Wenn Tabelle einmal weg, kommt sie nicht mehr wieder beim Einfügen von Daten 
  * 
  * Überlegungen:
  * Grafikbreite usw. dynamisch ?    
@@ -18,7 +17,7 @@
  * bild speichern?
  * klicken in tabelle fokus in grafik?
  * fehlermeldung beim einlesen?
- * tabelle zeilenweiser farbwechsel*
+ * tabelle zeilenweiser farbwechsel
  * sorttable funktionsfähig machen (sortiert lexikalisch)
  *              tabelle autosort beim Hinzufügen
  * 
@@ -159,7 +158,7 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
 
     // Group the xAxis, move it to the bottom
     svg.append("g")
-            .attr("class", "axis")
+            .attr("class", "x axis")
             .attr("transform", "translate(0," + (height) + ")")
             .call(xAxis);
     // Add the text label for the xAxis
@@ -171,7 +170,7 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
 
     // Group the yAxis
     svg.append("g")
-            .attr("class", "axis")
+            .attr("class", "y axis")
             .attr("transform", "translate(0,0)")
             .call(yAxis);
     // Add the text label for the yAxis
@@ -269,11 +268,11 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                     // remove newAdded
                     if (tempRow !== null)
                         tempRow.classed("newAdded", false);
-                    else
-                        d3.select("table#table").classed("hidden", false);
 
                     // make/get row
-                    var row = d3.select("table#table").select("tbody")
+                    var row = d3.select("table#table")
+                            .classed("hidden", false) // table surely visible
+                            .select("tbody")
                             .append("tr")
                             .attr("id", "ID" + i)
                             .classed("newAdded", true);
