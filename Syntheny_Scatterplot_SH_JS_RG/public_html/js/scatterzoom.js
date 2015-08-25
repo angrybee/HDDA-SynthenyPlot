@@ -10,7 +10,7 @@ var w = 940;
 h = 300;
 pad = 20;
 left_pad = 100;
-Data_url = '/data.json';
+Data_url = '../2genomes.json';
 
 /* Creating a svg */
 
@@ -68,14 +68,8 @@ d3.json(Data_url, function (scatterplot_data) {
 
     /* Scale circle radius */
 
-    var max_r = d3.max(scatterplot_data.map(
-            function (d) {
-                return d[2];
-            })),
-            r = d3.scale.linear()
-            .domain([0, d3.max(scatterplot_data, function (d) {
-                    return d[2];
-                })])
+    var r = d3.scale.linear()
+            .domain(0, 5)
             .range([0, 12]);
 
     /* Tell d3 to load in data */
@@ -87,15 +81,9 @@ d3.json(Data_url, function (scatterplot_data) {
             .enter()
             .append("circle")
             .attr("class", "circle")
-            .attr("cx", function (d) {
-                return x(d[1]);
-            })
-            .attr("cy", function (d) {
-                return y(d[0]);
-            })
+            .attr("cx", 5)
+            .attr("cy", 5)
             .transition()
             .duration("800")
-            .attr("r", function (d) {
-                return r(d[2]);
-            });
+            .attr("r");
 });
