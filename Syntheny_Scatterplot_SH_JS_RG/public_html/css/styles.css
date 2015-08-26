@@ -3,8 +3,6 @@ div {
     border-style:solid; 
     border-width:1px;
     border-color:pink;
-
-    padding:10px;
 }
 div.head {
     display:none;
