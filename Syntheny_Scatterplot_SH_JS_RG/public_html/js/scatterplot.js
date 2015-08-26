@@ -40,7 +40,7 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
     var margin = {top: 10, right: 10, bottom: 45, left: 70};
     var width = 550 - margin.left - margin.right;
     var height = 550 - margin.top - margin.bottom;
-    var domain = getDomainData();
+
     var minRadius = 1;
     var maxRadius = 5;
 
@@ -50,33 +50,19 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
 
     var tempRow = null;
 
-    function getDomainData() {
-        var o = {};
-        // Make an array and push another
-        // parseInt() if data stored as strings
-        var startData = dataset.map(function (d) {
-            return parseInt(d.Start1);
-        });
-        // d3.merge didn't work
-        Array.prototype.push.apply(startData,
-                function () {
-                    return dataset.map(function (d) {
-                        return parseInt(d.Start2);
-                    });
-                });
-        o.min = d3.min(startData);
-        o.max = d3.max(startData);
-        return  o;
-    }
-
     // Scaling xAxis
     var xScale = d3.scale.linear()
-            .domain([domain.min, domain.max]) // Original scaling [min, max]
+            .domain(d3.extent(dataset, function (d) {
+                return parseInt(d.Start1);
+            })) // Original scaling [min, max]
+            //            .domain([domain.min, domain.max]) // Original scaling [min, max]
             .range([0, width]); // New scaling [min, max]
 
     // Scaling yAxis
     var yScale = d3.scale.linear()
-            .domain([domain.min, domain.max]) // Original scaling [min, max]
+            .domain(d3.extent(dataset, function (d) {
+                return parseInt(d.Start2);
+            }))
             .range([height, 0]); // New scaling [min, max] upsidedown
 
     // xAxis, scaling, text bottom
