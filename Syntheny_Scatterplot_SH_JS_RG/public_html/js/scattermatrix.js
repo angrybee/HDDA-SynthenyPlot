@@ -155,11 +155,10 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                 .on("click", function () {
                     var array = getNeededData();
                     if (array.length > 0) {
-                        // var newWindow = window.open("");
-                        // newWindowRoot = d3.select(newWindow.document.html)
-                        //.attr("width", "1060px")
-                        //.attr("margin", "50px auto");
-                        return singleView(array);
+                        var newWindow = window.open("singleview.html", "", "width=900, height=750, margin=50px auto, scrollbars=1");
+                        newWindow.document.write("<html><head><link rel='stylesheet' href='css/styles.css' type='text/css'/></head><body></body></html>");
+                        newWindowRoot = d3.select(newWindow.document.body);
+                        return singleView(array, newWindowRoot);
                     }
                 });
 
@@ -195,22 +194,39 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
     //   d3.select(this.frameElement).style("height", size * n + padding + 20 + "px");
 
 
-    function singleView(dataset) {
-        //var singleView = d3.select("div#singleview");
-        d3.select("div#singleview").remove();
-        var singleView = d3.select("body").append("div").attr("id", "singleview");
-        //    .style("display", "flex");
-        // Building the DOM
+    function singleView(dataset, newWindow) {
+        console.log(newWindow);
+        console.log(dataset);
 
-        singleView.append("div").attr("id", "middle");
-        var middle = d3.select("div#middle");
+
+        // Define everything static
+        var singleView = newWindow;
+        var middle = singleView.append("div").attr("id", "middle");
         middle.append("div").attr("id", "plot");
         middle.append("div").attr("id", "infowindow");
         singleView.append("div").attr("id", "buttons");
-        singleView.append("div").attr("id", "table");
+        var tableDiv = singleView.append("div").attr("id", "table");
+        
+        
+        // Das sind die keys + paar zusätze, manipulieren und selbst erstellen lassen?
+        var table = tableDiv.append("table").attr("id", "table").attr("class", "hidden");
+        var tableHeadTr = table.append("thead").append("tr");
+        tableHeadTr.append("th").text("1st Genome");
+        tableHeadTr.append("th").text("Gen");
+        tableHeadTr.append("th").text("Start");
+        tableHeadTr.append("th").text("End");
+        tableHeadTr.append("th").text("Length");
+        tableHeadTr.append("th").text("2nd Genome");
+        tableHeadTr.append("th").text("Gen");
+        tableHeadTr.append("th").text("Start");
+        tableHeadTr.append("th").text("End");
+        tableHeadTr.append("th").text("Length");
+        tableHeadTr.append("th").text("Info");
+        tableHeadTr.append("th").text("Del");
+        table.append("tbody");
 
-        //      console.log(dataset);
-        // Scatterplot, the technical data
+
+
         var margin = {top: 10, right: 10, bottom: 45, left: 70};
         var width = 550 - margin.left - margin.right;
         var height = 550 - margin.top - margin.bottom;
@@ -227,9 +243,8 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
         // Scaling xAxis
         var xScale = d3.scale.linear()
                 .domain(d3.extent(dataset, function (d) {
-                    return parseInt(d.Start1);
-                })) // Original scaling [min, max]
-                //            .domain([domain.min, domain.max]) // Original scaling [min, max]
+                    return parseInt(d.Start1); // Original scaling [min, max]
+                }))
                 .range([0, width]); // New scaling [min, max]
 
         // Scaling yAxis
@@ -287,7 +302,7 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
         }
 
         // zoomResetButton
-        d3.select("div#buttons")
+        singleView.select("div#buttons")
                 .append("button")
                 .attr("type", "button")
                 .attr("id", "zoomReset")
@@ -299,10 +314,10 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                     zoomed();
                 });
 
-        var infowindow = d3.select("div#infowindow");
+        var infowindow = singleView.select("div#infowindow");
 
         // Outer SVG
-        var svg = d3.select("div#plot")
+        var svg = singleView.select("div#plot")
                 .append("svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
@@ -324,7 +339,8 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
         // Add the text label for the xAxis
         svg.append("text")
                 .attr("class", "axis label")
-                .attr("transform", "translate(" + (width / 2) + " ," + (height - 10 + margin.bottom) + ")")
+                .attr("transform", "translate(" + (width / 2) + " ,"
+                        + (height - 10 + margin.bottom) + ")")
                 .style("text-anchor", "middle")
                 .text(dataset[0].Genome1);
 
@@ -366,50 +382,60 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                 .attr("id", function (d, i) {
                     return "ID" + i;
                 })
-                .on("mouseover", function (d) {
-                    /*               tooltip.transition()
-                     .duration(200)
-                     .style("opacity", .9);
-                     tooltip.select("#gen1").text(d.Gen1); // mit Text füllen
-                     tooltip.select("#gen2").text(d.Gen2); */
-                    // infod3.style("left", (d3.event.pageX) + "px") // xPos
-                    //   .style("top", (d3.event.pageY - 40) + "px"); // yPos
-                    d3.select(this).classed("hover", true); // bunt
-                    this.parentNode.appendChild(this); // Redraw
+                .on("contextmenu", function (d, i) {
+                    d3.event.preventDefault();
+                    var popup = singleView.append("ul")
+                            .attr("id", "context-menu")
+                            .style('position', 'absolute')
+                            .style('display', 'inline-block')
+                            .style("left", (d3.event.pageX) + "px") // xPos
+                            .style("top", (d3.event.pageY) + "px"); // yPos
 
-                    infowindow.transition()
-                            .duration(200)
-                            .style("opacity", 0.9);
-
-                    infowindow.select("#genome1")
-                            .html("<a href='" + dbGenome + d.Genome1
-                                    + "' target='_blank'>"
-                                    + d.Genome1 + "</a>");
-                    infowindow.select("#gen1")
+                    popup.append("li").html("<a href='" + dbGenome + d.Genome1
+                            + "' target='_blank'>"
+                            + d.Genome1 + "</a>");
+                    popup.append("li")
                             .html("<a href='" + dbGen + d.Gen1
                                     + "[sym]' target='_blank'>"
                                     + d.Gen1 + "</a>");
-                    infowindow.select("#orientation1").text(getOrientation(d.Start1, d.End1));
-                    infowindow.select("#start1").text(d3.format(",")(d.Start1));
-                    infowindow.select("#end1").text(d3.format(",")(d.End1));
-                    infowindow.select("#length1")
-                            .text(d3.format(",")(Math.abs(d.End1 - d.Start1)));
-                    //Update the tooltip genome2
-                    infowindow.select("#genome2")
-                            .html("<a href='" + dbGenome + d.Genome2
-                                    + "' target='_blank'>"
-                                    + d.Genome2 + "</a>");
-                    infowindow.select("#gen2")
+                    popup.append("li").html("<a href='" + dbGenome + d.Genome2
+                            + "' target='_blank'>"
+                            + d.Genome2 + "</a>");
+                    popup.append("li")
                             .html("<a href='" + dbGen + d.Gen2
                                     + "[sym]' target='_blank'>"
                                     + d.Gen2 + "</a>");
-                    infowindow.select("#orientation2").text(getOrientation(d.Start2, d.End2));
-                    infowindow.select("#start2").text(d3.format(",")(d.Start2));
-                    infowindow.select("#end2").text(d3.format(",")(d.End2));
-                    infowindow.select("#length2")
-                            .text(d3.format(",")(Math.abs(d.End2 - d.Start2)));
-                    // Update the tooltip info
-                    infowindow.select("#info").text(d.Info);
+
+                    popup.on("mouseleave", function () {
+                        popup.remove();
+                    });
+                })
+                .on("mouseover", function (d) {
+                    d3.select(this).classed("hover", true); // bunt
+                    this.parentNode.appendChild(this); // Redraw
+                    /*
+                     infowindow.transition()
+                     .duration(200)
+                     .style("opacity", 0.9)
+                     .style('display', 'inline-block');
+                     
+                     infowindow.select("#genome1").text(d.Genome1);
+                     infowindow.select("#gen1").text(d.Gen1);
+                     infowindow.select("#orientation1").text(getOrientation(d.Start1, d.End1));
+                     infowindow.select("#start1").text(d3.format(",")(d.Start1));
+                     infowindow.select("#end1").text(d3.format(",")(d.End1));
+                     infowindow.select("#length1")
+                     .text(d3.format(",")(Math.abs(d.End1 - d.Start1)));
+                     //Update the tooltip genome2
+                     infowindow.select("#genome2").text(d.Genome2);
+                     infowindow.select("#gen2").text(d.Gen2);
+                     infowindow.select("#orientation2").text(getOrientation(d.Start2, d.End2));
+                     infowindow.select("#start2").text(d3.format(",")(d.Start2));
+                     infowindow.select("#end2").text(d3.format(",")(d.End2));
+                     infowindow.select("#length2")
+                     .text(d3.format(",")(Math.abs(d.End2 - d.Start2)));
+                     // Update the tooltip info
+                     infowindow.select("#info").text(d.Info);*/
                 })
                 .on("click", function (d, i) {
                     if (d3.select(this).attr("class").indexOf("saved") !== -1) {
@@ -418,19 +444,13 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                     else {
                         // Mark the spot as clicked
                         d3.select(this).classed("saved", true);
-                        /*
-                         // Remove the sortable tags (classes/elements)
-                         d3.select("th.sorttable_sorted").classed("sorttable_sorted", false);
-                         d3.select("span#sorttable_sortrevind").remove();
-                         d3.select("span#sorttable_sortfwdind").remove();
-                         */
 
                         // remove newAdded
                         if (tempRow !== null)
                             tempRow.classed("newAdded", false);
 
                         // make/get row
-                        var row = d3.select("table#table")
+                        var row = singleView.select("table#table")
                                 .classed("hidden", false) // table surely visible
                                 .select("tbody")
                                 .append("tr")
@@ -474,7 +494,8 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                 .on("mouseout", function (d) {
                     infowindow.transition()
                             .duration(500)
-                            .style("opacity", 0);
+                            .style("opacity", 0)
+                            .style('display', 'none');
                     d3.select(this).classed("hover", false); // normal
                 });
 
@@ -487,23 +508,12 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
 
         // Get and remove row und mark (Problems with id=int => id=IDint)
         function removeSaved(i) {
-            d3.select("tr#ID" + i).remove();
-            d3.select("circle#ID" + i).classed("saved", false);
+            singleView.select("tr#ID" + i).remove();
+            singleView.select("circle#ID" + i).classed("saved", false);
             // Hide table
-            if (d3.select("circle.saved")[0][0] === null)
-                d3.select("table#table").classed("hidden", true);
+            if (singleView.select("circle.saved")[0][0] === null)
+                singleView.select("table#table").classed("hidden", true);
         }
-
-        d3.selectAll("a").attr("target", "_blank");
-        /*
-         d3.select("div#buttons")
-         .append("button")
-         .attr("type", "button")
-         .attr("id", "save")
-         .text("Save")
-         .on("click", function () {
-         });
-         */
+        singleView.selectAll("a").attr("target", "_blank");
     }
-
 });

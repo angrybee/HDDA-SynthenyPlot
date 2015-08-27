@@ -1,26 +1,35 @@
+ul#context-menu {
+    background-color: #fff;
+    width: 200px;
+    border: 1px #ccc solid;
+    border-radius: 6px;
+    box-shadow: #333 2px 2px 4px;
+    padding: 20px;
+    font-family: arial, helvetica, sans-serif;
+}
+
 div {
     /* To see the borders in draft */
     border-style:solid; 
     border-width:1px;
     border-color:pink;
 }
-div.head {
-    display:none;
-}
-div.buttons {
-    display:flex;
+
+div#buttons {
+    display:flex; 
 }
 
-div.middle{
+div#middle{
     display:flex;
     flex-direction:row;
 }
 
-div.infowindow {
+div#infowindow {
     border-radius:8px;
     background:#ccccff;
     opacity:0;
     color:#616143;
+    display:none;
 }
 
 circle {
@@ -89,19 +98,11 @@ table.hidden {
     display:none;
 }
 
-table.sortable {
-    border:1px solid darkslategrey;
-    border-collapse:collapse;
-    font-size:14px;
-    font-family:sans-serif;
-}
-
-table.sortable th, td {
+table th, td {
     border:1px solid darkslategrey;
 }
 
-/* Sortable tables example*/
-table.sortable thead {
+table thead {
     background-color:lightgray;
     color:#666666;
     font-weight:bold;
