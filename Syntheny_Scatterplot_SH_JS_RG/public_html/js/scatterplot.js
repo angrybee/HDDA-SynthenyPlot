@@ -4,9 +4,12 @@
  * Bereich ziehen in Plot zur Auswahl (wäre schick)
  *      http://bl.ocks.org/mbostock/4063663
  *      Stichwort brushing
+ *      
+ *      Geht nicht mit zooming gleichzeitig
+ * 
  * 
  * Reparieren/Anpassen:
- * Auswahl Gene/Links Tooltips per Rechtsklick
+ * 
  * 
  * Überlegungen:
  * Grafikbreite usw. dynamisch ?    
@@ -40,7 +43,7 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
     var margin = {top: 10, right: 10, bottom: 45, left: 70};
     var width = 550 - margin.left - margin.right;
     var height = 550 - margin.top - margin.bottom;
- 
+
     var minRadius = 1;
     var maxRadius = 5;
 
@@ -50,15 +53,19 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
 
     var tempRow = null;
 
-     // Scaling xAxis
+    // Scaling xAxis
     var xScale = d3.scale.linear()
-            .domain(d3.extent(dataset, function(d) {return parseInt(d.Start1); })) // Original scaling [min, max]
-    //            .domain([domain.min, domain.max]) // Original scaling [min, max]
+            .domain(d3.extent(dataset, function (d) {
+                return parseInt(d.Start1);
+            })) // Original scaling [min, max]
+            //            .domain([domain.min, domain.max]) // Original scaling [min, max]
             .range([0, width]); // New scaling [min, max]
 
     // Scaling yAxis
     var yScale = d3.scale.linear()
-            .domain(d3.extent(dataset, function(d) {return parseInt(d.Start2); }))
+            .domain(d3.extent(dataset, function (d) {
+                return parseInt(d.Start2);
+            }))
             .range([height, 0]); // New scaling [min, max] upsidedown
 
     // xAxis, scaling, text bottom
@@ -188,43 +195,52 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
             .attr("id", function (d, i) {
                 return "ID" + i;
             })
+            .on("contextmenu", function (d, i) {
+                d3.event.preventDefault();
+                var popup = d3.select("#context-menu")
+                        .style('position', 'absolute')
+                        .style('display', 'inline-block')
+                        .style("left", (d3.event.pageX) + "px") // xPos
+                        .style("top", (d3.event.pageY) + "px"); // yPos
+
+                popup.select("#genome1").html("<a href='" + dbGenome + d.Genome1
+                        + "' target='_blank'>"
+                        + d.Genome1 + "</a>");
+                popup.select("#gen1")
+                        .html("<a href='" + dbGen + d.Gen1
+                                + "[sym]' target='_blank'>"
+                                + d.Gen1 + "</a>");
+                popup.select("#genome2").html("<a href='" + dbGenome + d.Genome2
+                        + "' target='_blank'>"
+                        + d.Genome2 + "</a>");
+                popup.select("#gen2")
+                        .html("<a href='" + dbGen + d.Gen2
+                                + "[sym]' target='_blank'>"
+                                + d.Gen2 + "</a>");
+                popup.on("mouseleave", function () {
+                    d3.select('#context-menu').style('display', 'none');
+                });
+
+            })
             .on("mouseover", function (d) {
-                /*               tooltip.transition()
-                 .duration(200)
-                 .style("opacity", .9);
-                 tooltip.select("#gen1").text(d.Gen1); // mit Text füllen
-                 tooltip.select("#gen2").text(d.Gen2); */
-                // infowindow.style("left", (d3.event.pageX) + "px") // xPos
-                //   .style("top", (d3.event.pageY - 40) + "px"); // yPos
                 d3.select(this).classed("hover", true); // bunt
                 this.parentNode.appendChild(this); // Redraw
 
                 infowindow.transition()
                         .duration(200)
-                        .style("opacity", 0.9);
+                        .style("opacity", 0.9)
+                        .style('display', 'inline-block')
 
-                infowindow.select("#genome1")
-                        .html("<a href='" + dbGenome + d.Genome1
-                                + "' target='_blank'>"
-                                + d.Genome1 + "</a>");
-                infowindow.select("#gen1")
-                        .html("<a href='" + dbGen + d.Gen1
-                                + "[sym]' target='_blank'>"
-                                + d.Gen1 + "</a>");
+                infowindow.select("#genome1").text(d.Genome1);
+                infowindow.select("#gen1").text(d.Gen1);
                 infowindow.select("#orientation1").text(getOrientation(d.Start1, d.End1));
                 infowindow.select("#start1").text(d3.format(",")(d.Start1));
                 infowindow.select("#end1").text(d3.format(",")(d.End1));
                 infowindow.select("#length1")
                         .text(d3.format(",")(Math.abs(d.End1 - d.Start1)));
                 //Update the tooltip genome2
-                infowindow.select("#genome2")
-                        .html("<a href='" + dbGenome + d.Genome2
-                                + "' target='_blank'>"
-                                + d.Genome2 + "</a>");
-                infowindow.select("#gen2")
-                        .html("<a href='" + dbGen + d.Gen2
-                                + "[sym]' target='_blank'>"
-                                + d.Gen2 + "</a>");
+                infowindow.select("#genome2").text(d.Genome2);
+                infowindow.select("#gen2").text(d.Gen2);
                 infowindow.select("#orientation2").text(getOrientation(d.Start2, d.End2));
                 infowindow.select("#start2").text(d3.format(",")(d.Start2));
                 infowindow.select("#end2").text(d3.format(",")(d.End2));
@@ -296,7 +312,8 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
             .on("mouseout", function (d) {
                 infowindow.transition()
                         .duration(500)
-                        .style("opacity", 0);
+                        .style("opacity", 0)
+                        .style('display', 'none');
                 d3.select(this).classed("hover", false); // normal
             });
 
