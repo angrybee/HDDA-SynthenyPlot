@@ -1,7 +1,6 @@
 /* 
  * ToDo:
  * individuelle domaingrößen und die dann mitgeben/speichern
- * workaround mit fehlenden daten lösen
  * klicken geht nur auf freien flächen
  * 
  * Anpassen und vereinheitlichen
@@ -9,11 +8,8 @@
  */
 /* global d3 */
 
-
-
-//var width = 600;
-        var size = 100,
-        padding = 25.5;
+var size = 100;
+var padding = 25.5;
 
 var x = d3.scale.linear()
         .range([padding / 2, size - padding / 2]);
@@ -37,60 +33,48 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
         return console.warn(error);
     //console.log(dataset);
 
-    d3.select("body").append("div").attr("id", "overview")
-            .style("display", "flex");
-    d3.select("body").append("div").attr("id", "singleview")
-            .style("display", "flex");
+    d3.select("body").append("div").attr("id", "overview");
+    //.style("display", "flex").style("float", "left");
+    d3.select("body").append("div");
+    //.attr("id", "singleview");
+    // .style("display", "flex");
 
-    var matrix = {};
+    var genomes = ["1", "2", "3", "4", "5"];  // bekommen wir aus erstem teil der struktur = anzahl genome
+    var n = genomes.length; // numer of data // 5
 
-    data.forEach(function (d) {
-        var value = {};
-        var array = [];
-        // Get current array if exists
-        if (typeof matrix["G" + d.Genome1] !== "undefined") {
-            value = matrix["G" + d.Genome1];
-            if (typeof value["G" + d.Genome2] !== "undefined") {
-                array = value["G" + d.Genome2];
-                array.push(d);
-            }
-            else {
-                array.push(d);
-                value["G" + d.Genome2] = array;
-            }
-            value["G" + d.Genome2] = array;
-            matrix["G" + d.Genome1] = value;
-        }
-        else {
-            array.push(d);
-            value["G" + d.Genome2] = array;
-            matrix["G" + d.Genome1] = value;
-        }
-    });
 
-    // dirty workaround
-    matrix.G2.G1 = [];
-    matrix.G3.G1 = [];
-    matrix.G3.G2 = [];
-    matrix.G4.G1 = [];
-    matrix.G4.G2 = [];
-    matrix.G4.G3 = [];
-    matrix.G5.G1 = [];
-    matrix.G5.G2 = [];
-    matrix.G5.G3 = [];
-    matrix.G5.G4 = [];
-    //  console.log(matrix);
 
-    var domainByTrait = {};
-    traits = ["1", "2", "3", "4", "5"];  // bekommen wir aus erstem teil der struktur
-    n = traits.length; // numer of data // 5
-
-    // selbe domain für alle erstmal
-    traits.forEach(function (trait) {
-        domainByTrait[trait] = d3.extent(data, function (d) {
+    var domainByGenome = {};
+    genomes.forEach(function (genome) {
+        domainByGenome[genome] = d3.extent(data, function (d) {
+            // selbe domain für alle erstmal, muss individuell aus erstem teil der struktur,
+            // einfach drüberiterieren und d3.extent
+            // im ersten Teil alle anfänge durchgehen als daten
             return parseInt(d.Start1);
         });
-        //     console.log(domainByTrait); // Grenzen holen für plot für jede daten über gesamte menge
+    });
+
+    var matrix = {}; // homologydata, each compared genomes in 1 array
+
+    // Workaround for empty cells/data
+    function initMatrix() {
+        for (var i = 0; i < n; i++) {
+            matrix["G" + genomes[i]] = {};
+            var values = matrix["G" + genomes[i]];
+            for (var j = 0; j < n; j++) {
+                values["G" + genomes[j]] = [];
+            }
+            matrix["G" + genomes[i]] = values;
+        }
+    }
+    initMatrix();
+
+    data.forEach(function (d) {
+        var values = matrix["G" + d.Genome1];
+        var array = values["G" + d.Genome2];
+        array.push(d);
+        values["G" + d.Genome2] = array;
+        matrix["G" + d.Genome1] = values;
     });
 
     // gitternetzlinien
@@ -107,7 +91,7 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
             .attr("transform", "translate(" + padding + "," + padding / 2 + ")");
 
     svg.selectAll(".x.axis")
-            .data(traits)
+            .data(genomes)
             .enter()
             .append("g")
             .attr("class", "x axis")
@@ -115,24 +99,24 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                 return "translate(" + (n - i - 1) * size + ",0)";
             })
             .each(function (d) {
-                x.domain(domainByTrait[d]);
+                x.domain(domainByGenome[d]);
                 d3.select(this).call(xAxis);
             });
 
     svg.selectAll(".y.axis")
-            .data(traits)
+            .data(genomes)
             .enter().append("g")
             .attr("class", "y axis")
             .attr("transform", function (d, i) {
                 return "translate(0," + i * size + ")";
             })
             .each(function (d) {
-                y.domain(domainByTrait[d]);
+                y.domain(domainByGenome[d]);
                 d3.select(this).call(yAxis);
             });
 
     var cell = svg.selectAll(".cell")
-            .data(cross(traits, traits))
+            .data(cross(genomes, genomes))
             .enter()
             .append("g")
             .attr("class", "cell")
@@ -141,31 +125,28 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
             })
             .each(plot);
 
-    // Titles for the diagonal.
-    cell.filter(function (d) {
-        return d.i === d.j;
-    }).append("text")
-            .attr("x", padding)
-            .attr("y", padding)
-            .attr("dy", ".71em")
-            .text(function (d) {
-                return d.x;
-            });
+    /*
+     // Titles for the diagonal.
+     cell.filter(function (d) {
+     return d.i === d.j;
+     })
+     .append("text")
+     .attr("x", padding)
+     .attr("y", padding)
+     .attr("dy", ".71em")
+     .text(function (d) {
+     return d.x;
+     }); 
+     */
 
     function plot(p) {
         var cell = d3.select(this);
 
-        // +fehlende Domain x=> scale für x
-        x.domain(domainByTrait[p.x]);
-        y.domain(domainByTrait[p.y]);
+        // +fehlende Domain x=> scale für x, aus daten ziehen, wenn vorhanden
+        x.domain(domainByGenome[p.x]);
+        y.domain(domainByGenome[p.y]);
 
-        cell
-                /*         .append("a")
-                 .attr("xlink:href", function () {
-                 return "singleview.html?G1=" + p.x + "&G2=" + p.y;
-                 })
-                 .attr("target", "_blank") */
-                .append("rect")
+        cell.append("rect")
                 .attr("class", "frame")
                 .attr("x", padding / 2)
                 .attr("y", padding / 2)
@@ -174,17 +155,20 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                 .on("click", function () {
                     var array = getNeededData();
                     if (array.length > 0) {
+                        // var newWindow = window.open("");
+                        // newWindowRoot = d3.select(newWindow.document.html)
+                        //.attr("width", "1060px")
+                        //.attr("margin", "50px auto");
                         return singleView(array);
                     }
                 });
-
 
         function getNeededData() {
             var tmp = matrix["G" + p.x];
             var array = tmp["G" + p.y];
             return array;
         }
-        // Hier is der Wurm ab 2.1, weil keine Daten mehr vorhanden
+
         cell.selectAll("circle")
                 .data(getNeededData()) // data, die für genomX gegen genomY plot notwendig
                 .enter()
@@ -195,7 +179,7 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                 .attr("cy", function (d) {
                     return y(d.Start2);
                 })
-                .attr("r", 1)
+                .attr("r", 0.5)
                 .style("fill", "blue");
 
     }
@@ -208,16 +192,28 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
         //       console.log(c);
         return c;
     }
-    d3.select(this.frameElement).style("height", size * n + padding + 20 + "px");
+    //   d3.select(this.frameElement).style("height", size * n + padding + 20 + "px");
 
 
     function singleView(dataset) {
-        d3.select("div#singleview").select("svg").remove();
-//        console.log(dataset);
+        //var singleView = d3.select("div#singleview");
+        d3.select("div#singleview").remove();
+        var singleView = d3.select("body").append("div").attr("id", "singleview");
+        //    .style("display", "flex");
+        // Building the DOM
+
+        singleView.append("div").attr("id", "middle");
+        var middle = d3.select("div#middle");
+        middle.append("div").attr("id", "plot");
+        middle.append("div").attr("id", "infowindow");
+        singleView.append("div").attr("id", "buttons");
+        singleView.append("div").attr("id", "table");
+
+        //      console.log(dataset);
         // Scatterplot, the technical data
-        var margin = {top: 10, right: 10, bottom: 45, left: 30};
-        var width = 500 - margin.left - margin.right;
-        var height = 500 - margin.top - margin.bottom;
+        var margin = {top: 10, right: 10, bottom: 45, left: 70};
+        var width = 550 - margin.left - margin.right;
+        var height = 550 - margin.top - margin.bottom;
 
         var minRadius = 1;
         var maxRadius = 5;
@@ -290,8 +286,23 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                     });
         }
 
+        // zoomResetButton
+        d3.select("div#buttons")
+                .append("button")
+                .attr("type", "button")
+                .attr("id", "zoomReset")
+                .text("Reset view")
+                .on('click', function () {
+                    d3.event.preventDefault();
+                    zoom.scale(1);
+                    zoom.translate([0, 0]);
+                    zoomed();
+                });
+
+        var infowindow = d3.select("div#infowindow");
+
         // Outer SVG
-        var svg = d3.select("div#singleview")
+        var svg = d3.select("div#plot")
                 .append("svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
@@ -356,9 +367,49 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                     return "ID" + i;
                 })
                 .on("mouseover", function (d) {
+                    /*               tooltip.transition()
+                     .duration(200)
+                     .style("opacity", .9);
+                     tooltip.select("#gen1").text(d.Gen1); // mit Text füllen
+                     tooltip.select("#gen2").text(d.Gen2); */
+                    // infod3.style("left", (d3.event.pageX) + "px") // xPos
+                    //   .style("top", (d3.event.pageY - 40) + "px"); // yPos
                     d3.select(this).classed("hover", true); // bunt
                     this.parentNode.appendChild(this); // Redraw
 
+                    infowindow.transition()
+                            .duration(200)
+                            .style("opacity", 0.9);
+
+                    infowindow.select("#genome1")
+                            .html("<a href='" + dbGenome + d.Genome1
+                                    + "' target='_blank'>"
+                                    + d.Genome1 + "</a>");
+                    infowindow.select("#gen1")
+                            .html("<a href='" + dbGen + d.Gen1
+                                    + "[sym]' target='_blank'>"
+                                    + d.Gen1 + "</a>");
+                    infowindow.select("#orientation1").text(getOrientation(d.Start1, d.End1));
+                    infowindow.select("#start1").text(d3.format(",")(d.Start1));
+                    infowindow.select("#end1").text(d3.format(",")(d.End1));
+                    infowindow.select("#length1")
+                            .text(d3.format(",")(Math.abs(d.End1 - d.Start1)));
+                    //Update the tooltip genome2
+                    infowindow.select("#genome2")
+                            .html("<a href='" + dbGenome + d.Genome2
+                                    + "' target='_blank'>"
+                                    + d.Genome2 + "</a>");
+                    infowindow.select("#gen2")
+                            .html("<a href='" + dbGen + d.Gen2
+                                    + "[sym]' target='_blank'>"
+                                    + d.Gen2 + "</a>");
+                    infowindow.select("#orientation2").text(getOrientation(d.Start2, d.End2));
+                    infowindow.select("#start2").text(d3.format(",")(d.Start2));
+                    infowindow.select("#end2").text(d3.format(",")(d.End2));
+                    infowindow.select("#length2")
+                            .text(d3.format(",")(Math.abs(d.End2 - d.Start2)));
+                    // Update the tooltip info
+                    infowindow.select("#info").text(d.Info);
                 })
                 .on("click", function (d, i) {
                     if (d3.select(this).attr("class").indexOf("saved") !== -1) {
@@ -367,16 +418,65 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                     else {
                         // Mark the spot as clicked
                         d3.select(this).classed("saved", true);
+                        /*
+                         // Remove the sortable tags (classes/elements)
+                         d3.select("th.sorttable_sorted").classed("sorttable_sorted", false);
+                         d3.select("span#sorttable_sortrevind").remove();
+                         d3.select("span#sorttable_sortfwdind").remove();
+                         */
 
+                        // remove newAdded
+                        if (tempRow !== null)
+                            tempRow.classed("newAdded", false);
+
+                        // make/get row
+                        var row = d3.select("table#table")
+                                .classed("hidden", false) // table surely visible
+                                .select("tbody")
+                                .append("tr")
+                                .attr("id", "ID" + i)
+                                .classed("newAdded", true);
+
+                        tempRow = row; // save it for later to remove mark
+
+                        // add stuff 
+                        row.append("td").html("<a href='" + dbGenome + d.Genome1
+                                + "' target='_blank'>"
+                                + d.Genome1 + "</a>");
+                        row.append("td").html("<a href='" + dbGen + d.Gen1
+                                + "[sym]' target='_blank'>"
+                                + d.Gen1 + "</a>");
+                        row.append("td").text(getOrientation(d.Start1, d.End1));
+                        row.append("td").text(d3.format(",")(d.Start1));
+                        row.append("td").text(d3.format(",")(d.End1));
+                        row.append("td").text(d3.format(",")(Math.abs(d.End1 - d.Start1)));
+
+                        row.append("td").html("<a href='" + dbGenome + d.Genome2
+                                + "' target='_blank'>"
+                                + d.Genome2 + "</a>");
+                        row.append("td").html("<a href='" + dbGen + d.Gen2
+                                + "[sym]' target='_blank'>"
+                                + d.Gen2 + "</a>");
+                        row.append("td").text(getOrientation(d.Start2, d.End2));
+                        row.append("td").text(d3.format(",")(d.Start2));
+                        row.append("td").text(d3.format(",")(d.End2));
+                        row.append("td").text(d3.format(",")(Math.abs(d.End2 - d.Start2)));
+                        row.append("td").text(d.Info);
+                        row.append("button")
+                                .attr("type", "button")
+                                .attr("id", i)
+                                .text("X")
+                                .on('click', function () {
+                                    removeSaved(d3.select(this).attr("id"));
+                                });
                     }
-
                 })
-    /*            .on("mouseout", function (d) {
+                .on("mouseout", function (d) {
                     infowindow.transition()
                             .duration(500)
                             .style("opacity", 0);
                     d3.select(this).classed("hover", false); // normal
-                })*/;
+                });
 
         // Get the orientation with given start and end of a gen
         function getOrientation(firstValue, secondValue) {
@@ -395,6 +495,15 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
         }
 
         d3.selectAll("a").attr("target", "_blank");
+        /*
+         d3.select("div#buttons")
+         .append("button")
+         .attr("type", "button")
+         .attr("id", "save")
+         .text("Save")
+         .on("click", function () {
+         });
+         */
     }
 
 });
