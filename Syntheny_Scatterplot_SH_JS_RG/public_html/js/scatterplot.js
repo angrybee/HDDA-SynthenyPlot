@@ -229,7 +229,7 @@ d3.tsv("files/ArabidopsisChr1Genome.tsv", function (error, dataset) {
                 infowindow.transition()
                         .duration(200)
                         .style("opacity", 0.9)
-                        .style('display', 'inline-block')
+                        .style('display', 'inline-block');
 
                 infowindow.select("#genome1").text(d.Genome1);
                 infowindow.select("#gen1").text(d.Gen1);
