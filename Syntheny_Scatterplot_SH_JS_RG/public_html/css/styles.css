@@ -12,12 +12,13 @@ ul#outerUl {
     list-style:none;
 }
 
-div {
-    /* To see the borders in draft */
+/* To see the borders in draft 
+div { 
     border-style:solid; 
     border-width:1px;
     border-color:pink;
 }
+*/
 
 div#buttons {
     display:flex; 
@@ -63,6 +64,11 @@ rect {
     shape-rendering:crispEdges;
 }
 
+.frame {
+        fill: none;
+        stroke: #aaa;
+    }
+
 .axis text {
     font-family:sans-serif;
     font-size:10px;
@@ -79,7 +85,7 @@ rect {
 .axis path,
 .axis line {
     fill:none;
-    stroke:lightgray;
+    stroke: #ddd;
     shape-rendering:crispEdges;
 }
 

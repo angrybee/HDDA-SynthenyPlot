@@ -1,8 +1,31 @@
-/* 
+//=============================================================================
+//
+//         FILE:    scattermatrix.index
+//
+//        USAGE: 
+//
+//  DESCRIPTION:    Perfomance for M-BS2-S4B SS2015
+//                  Visualisation of synteny with Javascript and the
+//                  library D3.js (http://d3js.org)
+//
+//      OPTIONS:    ---
+// REQUIREMENTS:    datafile in json-format:
+//         BUGS:    Click to open new window only works if not clicked on dots.
+//                  If drawing a frame (class=frame) only a click on the frame 
+//                  opens a new window.
+//
+//
+//        NOTES:    
+//
+// ORGANIZATION:    Justus-Liebig-University Giessen
+//      VERSION:    1.0
+//      CREATED:    08.2015
+//     REVISION:    ---
+//=============================================================================
+
+/*
  * ToDo:
  * individuelle domaingrößen und die dann mitgeben/speichern
- * klicken geht nur auf freien flächen
- * Achsen beschriften
  * 
  * Aufräumen:
  *      Einheitlich id/class ansprechen
@@ -12,7 +35,7 @@
  */
 /* global d3 */
 
-var size = 100;
+var size = 150;
 var padding = 25.5;
 
 var x = d3.scale.linear()
@@ -36,19 +59,15 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
         return console.warn(error);
     //console.log(dataset);
 
-//    d3.select("body").append("div").attr("id", "overview");
-    //.style("display", "flex").style("float", "left");
-    //   d3.select("body").append("div");
-    //.attr("id", "singleview");
-    // .style("display", "flex");
-
-    var genomes = ["1", "2", "3", "4", "5"];  // bekommen wir aus erstem teil der struktur = anzahl genome
+    var genomes = ["1", "2", "3", "4", "5"];  // bekommen wir aus
+    //erstem teil der struktur = anzahl genome
     var n = genomes.length; // numer of data // 5
 
     var domainByGenome = {};
     genomes.forEach(function (genome) {
         domainByGenome[genome] = d3.extent(data, function (d) {
-            // selbe domain für alle erstmal, muss individuell aus erstem teil der struktur,
+            // selbe domain für alle erstmal, muss individuell aus erstem teil
+            // der struktur,
             // einfach drüberiterieren und d3.extent
             // im ersten Teil alle anfänge durchgehen als daten
             return parseInt(d.Start1);
@@ -78,7 +97,7 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
         matrix["G" + d.Genome1] = values;
     });
 
-    // gitternetzlinien
+    // Grids
     xAxis.tickSize(size * n)
             .tickFormat(d3.format("s"));
     yAxis.tickSize(-size * n)
@@ -86,10 +105,11 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
 
     var svg = d3.select("body")
             .append("svg")
-            .attr("width", size * n + padding)
-            .attr("height", size * n + padding)
+            .attr("width", size * n + 2 * padding)
+            .attr("height", size * n + 2 * padding)
             .append("g")
-            .attr("transform", "translate(" + padding + "," + padding / 2 + ")");
+            .attr("transform",
+                    "translate(" + 2 * padding + "," + padding + ")");
 
     svg.selectAll(".x.axis")
             .data(genomes)
@@ -102,11 +122,20 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
             .each(function (d) {
                 x.domain(domainByGenome[d]);
                 d3.select(this).call(xAxis);
+                d3.select(this).append("text")
+                        .attr("class", "axis label")
+                        .attr("transform", function () {
+                            var tmp = padding + (size * n);
+                            return "translate(" + size / 2 + "," + tmp + ")";
+                        })
+                        .style("text-anchor", "middle")
+                        .text(d.substring(0, size / 8)); // not to long titels
             });
 
     svg.selectAll(".y.axis")
             .data(genomes)
-            .enter().append("g")
+            .enter()
+            .append("g")
             .attr("class", "y axis")
             .attr("transform", function (d, i) {
                 return "translate(0," + i * size + ")";
@@ -114,31 +143,26 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
             .each(function (d) {
                 y.domain(domainByGenome[d]);
                 d3.select(this).call(yAxis);
+                d3.select(this).append("text")
+                        .attr("class", "axis label")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 0 - 2 * padding)
+                        .attr("x", 0 - (size / 2))
+                        .attr("dy", "1em")
+                        .style("text-anchor", "middle")
+                        .text(d.substring(0, size / 8)); // not to long titels
             });
 
-    var cell = svg.selectAll(".cell")
+    svg.selectAll(".cell")
             .data(cross(genomes, genomes))
             .enter()
             .append("g")
             .attr("class", "cell")
             .attr("transform", function (d) {
-                return "translate(" + (n - d.i - 1) * size + "," + d.j * size + ")";
+                return "translate(" + (n - d.i - 1) * size
+                        + "," + d.j * size + ")";
             })
             .each(plot);
-
-    /*
-     // Titles for the diagonal.
-     cell.filter(function (d) {
-     return d.i === d.j;
-     })
-     .append("text")
-     .attr("x", padding)
-     .attr("y", padding)
-     .attr("dy", ".71em")
-     .text(function (d) {
-     return d.x;
-     }); 
-     */
 
     function plot(p) {
         var cell = d3.select(this);
@@ -148,21 +172,23 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
         y.domain(domainByGenome[p.y]);
 
         cell.append("rect")
-                .attr("class", "frame")
+//                .attr("class", "frame")
                 .attr("x", padding / 2)
                 .attr("y", padding / 2)
                 .attr("width", size - padding)
                 .attr("height", size - padding)
                 .on("click", function () {
+                    // Open new window with the single plot if there are data
                     var array = getNeededData();
                     if (array.length > 0) {
                         var newWindow = window.open("singleview.html", "", "width=900, height=750, margin=50px auto, scrollbars=1");
                         newWindow.document.write("<html><head><link rel='stylesheet' href='css/styles.css' type='text/css'/></head><body></body></html>");
                         newWindowRoot = d3.select(newWindow.document.body);
                         return singleView(array, newWindowRoot);
-                    }
+                    } 
                 });
 
+        // Gets the data from matrix
         function getNeededData() {
             var tmp = matrix["G" + p.x];
             var array = tmp["G" + p.y];
@@ -170,7 +196,14 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
         }
 
         cell.selectAll("circle")
-                .data(getNeededData()) // data, die für genomX gegen genomY plot notwendig
+                .data(function () {
+                    // Data for drawing a small single plot
+                    var neededData = getNeededData();
+//                    // Frame only when data seen
+//                    if (neededData.length === 0)
+//                        cell.select("rect").classed("frame", false);
+                    return neededData;
+                })
                 .enter()
                 .append("circle")
                 .attr("cx", function (d) {
@@ -184,26 +217,27 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
 
     }
 
+    // Logic to get the genomes into a matrix
     function cross(a, b) {
         var c = [], n = a.length, m = b.length, i, j;
         for (i = - 1; ++i < n; )
             for (j = - 1; ++j < m; )
                 c.push({x: a[i], i: i, y: b[j], j: j});
-        //       console.log(c);
         return c;
     }
-    //   d3.select(this.frameElement).style("height", size * n + padding + 20 + "px");
 
+    // Draw the single plot with the given data in the given window
     function singleView(dataset, newWindow) {
-        /*       console.log(newWindow);
-         console.log(dataset);*/
 
-        // Define everything static
+        // Define everything static needed
         var singleView = newWindow;
+        
+        // Divs
         var middle = singleView.append("div").attr("id", "middle");
         middle.append("div").attr("id", "plot");
         var infowindow = middle.append("div").attr("id", "infowindow");
 
+        // Big tooltip
         infowindow.append("ul").attr("id", "outerUl");
         infowindow.select("ul#outerUl")
                 .append("li").attr("id", "firstGenome")
@@ -220,7 +254,8 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                 .append("span").attr("class", "key").text("Gen");
 
         innerUlG1.append("li").attr("id", "firstOrientation")
-                .append("span").attr("class", "value").attr("id", "orientation1");
+                .append("span").attr("class", "value")
+                .attr("id", "orientation1");
         infowindow.select("li#firstOrientation")
                 .append("span").attr("class", "key").text("Orientation");
 
@@ -254,7 +289,8 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                 .append("span").attr("class", "key").text("Gen");
 
         innerUlG2.append("li").attr("id", "secondOrientation")
-                .append("span").attr("class", "value").attr("id", "orientation2");
+                .append("span").attr("class", "value")
+                .attr("id", "orientation2");
         infowindow.select("li#secondOrientation")
                 .append("span").attr("class", "key").text("Orientation");
 
@@ -277,28 +313,34 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                 .append("li").attr("id", "Information")
                 .append("span").attr("class", "value").attr("id", "info");
         infowindow.select("li#Information")
-                .append("span").attr("class", "key").text("e-Value or something else");
+                .append("span").attr("class", "key")
+                .text("e-Value or something else");
 
+        // Divs
         singleView.append("div").attr("id", "buttons");
         var tableDiv = singleView.append("div").attr("id", "table");
 
-        // Das sind die keys + paar zusätze, manipulieren und selbst erstellen lassen?
-        var table = tableDiv.append("table").attr("id", "table").attr("class", "hidden");
+        // Das sind die keys + paar zusätze, manipulieren und selbst
+        // erstellen lassen?
+        // Table for the saved information
+        var table = tableDiv.append("table").attr("id", "table")
+                .attr("class", "hidden");
         var tableHeadTr = table.append("thead").append("tr");
         tableHeadTr.append("th").text("1st Genome");
         tableHeadTr.append("th").text("Gen");
+        tableHeadTr.append("th").text("Orientation");
         tableHeadTr.append("th").text("Start");
         tableHeadTr.append("th").text("End");
         tableHeadTr.append("th").text("Length");
         tableHeadTr.append("th").text("2nd Genome");
         tableHeadTr.append("th").text("Gen");
+        tableHeadTr.append("th").text("Orientation");
         tableHeadTr.append("th").text("Start");
         tableHeadTr.append("th").text("End");
         tableHeadTr.append("th").text("Length");
         tableHeadTr.append("th").text("Info");
         tableHeadTr.append("th").text("Del");
         table.append("tbody");
-
 
         // Technical stuff
         var margin = {top: 10, right: 10, bottom: 45, left: 70};
@@ -348,7 +390,7 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
         var zoom = d3.behavior.zoom()
                 .x(xScale)  // Set new scales
                 .y(yScale)
-                .scaleExtent([1, 100])  // ZoomInFactor
+                .scaleExtent([1, 100])  // "ZoomInFactor"
                 .on("zoom", zoomed);
 
         // Zoomfunction, zoomes axis and dots
@@ -363,14 +405,13 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                         return yScale(d.Start2);
                     })
                     .attr("r", function () {
-                        /* 
-                         * Use new scale or the maxRadius to get "normal" sized
-                         * dots. Reset needs the original minRadius.
-                         */
+                        // Use new scale or the maxRadius to get "normal" sized
+                        // dots. 
                         if (d3.event.scale > maxRadius)
                             return maxRadius;
                         if (d3.event.scale > 1)
                             return d3.event.scale;
+                        // Reset needs the original minRadius.
                         return minRadius;
                     });
         }
@@ -387,8 +428,6 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                     zoom.translate([0, 0]);
                     zoomed();
                 });
-
-//        var infowindow = singleView.select("div#infowindow");
 
         // Outer SVG
         var svg = singleView.select("div#plot")
@@ -444,7 +483,7 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                 .data(dataset)
                 .enter()
                 .append("circle")
-                .attr("cx", function (d) { // Attributes for the dots
+                .attr("cx", function (d) {
                     // scaling the values to xAxis
                     return xScale(d.Start1);
                 })
@@ -457,12 +496,11 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                     return "ID" + i;
                 })
                 .attr("class", "single")
-                .on("contextmenu", function (d, i) {
-                    d3.event.preventDefault();
+                .on("contextmenu", function (d, i) {  // Rightclick
+                    d3.event.preventDefault();  // Disable normal mennu
                     var popup = singleView.append("ul")
                             .attr("id", "context-menu")
                             .style('position', 'absolute')
-                            .style('display', 'inline-block')
                             .style("left", (d3.event.pageX) + "px") // xPos
                             .style("top", (d3.event.pageY) + "px"); // yPos
 
@@ -485,9 +523,9 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                         popup.remove();
                     });
                 })
-                .on("mouseover", function (d) {
-                    d3.select(this).classed("hover", true); // bunt
-                    this.parentNode.appendChild(this); // Redraw
+                .on("mouseover", function (d) {  // hover
+                    d3.select(this).classed("hover", true); // change color
+                    this.parentNode.appendChild(this); // redraw/foreground
 
                     infowindow.transition()
                             .duration(200)
@@ -496,25 +534,25 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
 
                     infowindow.select("#genome1").text(d.Genome1);
                     infowindow.select("#gen1").text(d.Gen1);
-                    infowindow.select("#orientation1").text(getOrientation(d.Start1, d.End1));
+                    infowindow.select("#orientation1")
+                            .text(getOrientation(d.Start1, d.End1));
                     infowindow.select("#start1").text(d3.format(",")(d.Start1));
                     infowindow.select("#end1").text(d3.format(",")(d.End1));
                     infowindow.select("#length1")
                             .text(d3.format(",")(Math.abs(d.End1 - d.Start1)));
-                    //Update the tooltip genome2
                     infowindow.select("#genome2").text(d.Genome2);
                     infowindow.select("#gen2").text(d.Gen2);
-                    infowindow.select("#orientation2").text(getOrientation(d.Start2, d.End2));
+                    infowindow.select("#orientation2")
+                            .text(getOrientation(d.Start2, d.End2));
                     infowindow.select("#start2").text(d3.format(",")(d.Start2));
                     infowindow.select("#end2").text(d3.format(",")(d.End2));
                     infowindow.select("#length2")
                             .text(d3.format(",")(Math.abs(d.End2 - d.Start2)));
-                    // Update the tooltip info
                     infowindow.select("#info").text(d.Info);
                 })
-                .on("click", function (d, i) {
+                .on("click", function (d, i) { // mouseclick
                     if (d3.select(this).attr("class").indexOf("saved") !== -1) {
-                        removeSaved(i);
+                        removeSaved(i); // remove if again clicked on spot
                     }
                     else {
                         // Mark the spot as clicked
@@ -526,7 +564,7 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
 
                         // make/get row
                         var row = singleView.select("table#table")
-                                .classed("hidden", false) // table surely visible
+                                .classed("hidden", false) // table visible
                                 .select("tbody")
                                 .append("tr")
                                 .attr("id", "ID" + i)
@@ -534,7 +572,7 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
 
                         tempRow = row; // save it for later to remove mark
 
-                        // add stuff 
+                        // add stuff to the table
                         row.append("td").html("<a href='" + dbGenome + d.Genome1
                                 + "' target='_blank'>"
                                 + d.Genome1 + "</a>");
@@ -544,7 +582,8 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                         row.append("td").text(getOrientation(d.Start1, d.End1));
                         row.append("td").text(d3.format(",")(d.Start1));
                         row.append("td").text(d3.format(",")(d.End1));
-                        row.append("td").text(d3.format(",")(Math.abs(d.End1 - d.Start1)));
+                        row.append("td").text(d3.format(",")
+                                (Math.abs(d.End1 - d.Start1)));
 
                         row.append("td").html("<a href='" + dbGenome + d.Genome2
                                 + "' target='_blank'>"
@@ -555,7 +594,8 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                         row.append("td").text(getOrientation(d.Start2, d.End2));
                         row.append("td").text(d3.format(",")(d.Start2));
                         row.append("td").text(d3.format(",")(d.End2));
-                        row.append("td").text(d3.format(",")(Math.abs(d.End2 - d.Start2)));
+                        row.append("td").text(d3.format(",")
+                                (Math.abs(d.End2 - d.Start2)));
                         row.append("td").text(d.Info);
                         row.append("button")
                                 .attr("type", "button")
@@ -566,7 +606,7 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                                 });
                     }
                 })
-                .on("mouseout", function (d) {
+                .on("mouseout", function (d) { // mouse leaves spot
                     infowindow.transition()
                             .duration(500)
                             .style("opacity", 0)
@@ -581,7 +621,7 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
             return "reverse";
         }
 
-        // Get and remove row und mark (Problems with id=int => id=IDint)
+        // Get and remove row und mark
         function removeSaved(i) {
             singleView.select("tr#ID" + i).remove();
             singleView.select("circle#ID" + i).classed("saved", false);
@@ -589,6 +629,8 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
             if (singleView.select("circle.saved")[0][0] === null)
                 singleView.select("table#table").classed("hidden", true);
         }
+        
+        // Change every link to target=_blank to open in new window/tab
         singleView.selectAll("a").attr("target", "_blank");
     }
 });
