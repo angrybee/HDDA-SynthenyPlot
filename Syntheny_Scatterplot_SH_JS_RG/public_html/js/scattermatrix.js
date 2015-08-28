@@ -186,7 +186,7 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                         newWindow.document.write("<html><head><link rel='stylesheet' href='css/styles.css' type='text/css'/></head><body></body></html>");
                         newWindowRoot = d3.select(newWindow.document.body);
                         return singleView(array, newWindowRoot);
-                    } 
+                    }
                 });
 
         // Gets the data from matrix
@@ -232,7 +232,15 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
 
         // Define everything static needed
         var singleView = newWindow;
-        
+
+        singleView.append("div").attr("id", "text")
+                .append("h1")
+                .text("Detailed synteny plot of " + dataset[0].Genome1
+                        + " and " + dataset[0].Genome2 + ".");
+        singleView.select("div#text").append("p")
+                .text("These data points represent the position of \n\
+homolog genes in the selected genomes.");
+
         // Divs
         var middle = singleView.append("div").attr("id", "middle");
         middle.append("div").attr("id", "plot");
@@ -630,7 +638,7 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
             if (singleView.select("circle.saved")[0][0] === null)
                 singleView.select("table#table").classed("hidden", true);
         }
-        
+
         // Change every link to target=_blank to open in new window/tab
         singleView.selectAll("a").attr("target", "_blank");
     }
