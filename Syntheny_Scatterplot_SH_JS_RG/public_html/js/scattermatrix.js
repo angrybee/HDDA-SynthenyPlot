@@ -9,7 +9,7 @@
 //                  library D3.js (http://d3js.org)
 //
 //      OPTIONS:    ---
-// REQUIREMENTS:    datafile in json-format: TND
+// REQUIREMENTS:    datafile in json-format: TBD
 // 
 //         BUGS:    Click to open new window only works if not clicked on dots.
 //                  If drawing a frame (class=frame) only a click on the frame 
