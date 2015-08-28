@@ -8,6 +8,10 @@ ul#context-menu {
     font-family: arial, helvetica, sans-serif;
 }
 
+ul#outerUl {
+    list-style:none;
+}
+
 div {
     /* To see the borders in draft */
     border-style:solid; 
@@ -35,7 +39,11 @@ div#infowindow {
 circle {
     fill:DodgerBlue;
     stroke:white; 
-    stroke-width:0.2;
+    stroke-width:0.1;
+}
+
+circle.single{
+    stroke-width:0.3;
 }
 
 circle.marked {

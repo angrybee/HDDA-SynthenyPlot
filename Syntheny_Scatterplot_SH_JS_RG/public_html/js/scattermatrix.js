@@ -2,7 +2,11 @@
  * ToDo:
  * individuelle domaingrößen und die dann mitgeben/speichern
  * klicken geht nur auf freien flächen
+ * Achsen beschriften
  * 
+ * Aufräumen:
+ *      Einheitlich id/class ansprechen
+ *      Doku/Comments englisch* 
  * Anpassen und vereinheitlichen
  * 
  */
@@ -27,22 +31,19 @@ var yAxis = d3.svg.axis()
         .orient("left");
 //   .ticks(5);
 
-
 d3.tsv("files/Arabidopsis.tsv", function (error, data) {
     if (error)
         return console.warn(error);
     //console.log(dataset);
 
-    d3.select("body").append("div").attr("id", "overview");
+//    d3.select("body").append("div").attr("id", "overview");
     //.style("display", "flex").style("float", "left");
-    d3.select("body").append("div");
+    //   d3.select("body").append("div");
     //.attr("id", "singleview");
     // .style("display", "flex");
 
     var genomes = ["1", "2", "3", "4", "5"];  // bekommen wir aus erstem teil der struktur = anzahl genome
     var n = genomes.length; // numer of data // 5
-
-
 
     var domainByGenome = {};
     genomes.forEach(function (genome) {
@@ -83,7 +84,7 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
     yAxis.tickSize(-size * n)
             .tickFormat(d3.format("s"));
 
-    var svg = d3.select("div#overview")
+    var svg = d3.select("body")
             .append("svg")
             .attr("width", size * n + padding)
             .attr("height", size * n + padding)
@@ -193,21 +194,94 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
     }
     //   d3.select(this.frameElement).style("height", size * n + padding + 20 + "px");
 
-
     function singleView(dataset, newWindow) {
-        console.log(newWindow);
-        console.log(dataset);
-
+        /*       console.log(newWindow);
+         console.log(dataset);*/
 
         // Define everything static
         var singleView = newWindow;
         var middle = singleView.append("div").attr("id", "middle");
         middle.append("div").attr("id", "plot");
-        middle.append("div").attr("id", "infowindow");
+        var infowindow = middle.append("div").attr("id", "infowindow");
+
+        infowindow.append("ul").attr("id", "outerUl");
+        infowindow.select("ul#outerUl")
+                .append("li").attr("id", "firstGenome")
+                .append("span").attr("class", "value").attr("id", "genome1");
+        infowindow.select("li#firstGenome")
+                .append("span").attr("class", "key").text("First Genome");
+        infowindow.select("li#firstGenome")
+                .append("ul").attr("id", "innerUlG1");
+
+        var innerUlG1 = infowindow.select("ul#innerUlG1");
+        innerUlG1.append("li").attr("id", "firstGen")
+                .append("span").attr("class", "value").attr("id", "gen1");
+        infowindow.select("li#firstGen")
+                .append("span").attr("class", "key").text("Gen");
+
+        innerUlG1.append("li").attr("id", "firstOrientation")
+                .append("span").attr("class", "value").attr("id", "orientation1");
+        infowindow.select("li#firstOrientation")
+                .append("span").attr("class", "key").text("Orientation");
+
+        innerUlG1.append("li").attr("id", "firstStart")
+                .append("span").attr("class", "value").attr("id", "start1");
+        infowindow.select("li#firstStart")
+                .append("span").attr("class", "key").text("Start position");
+
+        innerUlG1.append("li").attr("id", "firstEnd")
+                .append("span").attr("class", "value").attr("id", "end1");
+        infowindow.select("li#firstEnd")
+                .append("span").attr("class", "key").text("End position");
+
+        innerUlG1.append("li").attr("id", "firstlength")
+                .append("span").attr("class", "value").attr("id", "length1");
+        infowindow.select("li#firstlength")
+                .append("span").attr("class", "key").text("Length");
+
+        infowindow.select("ul#outerUl")
+                .append("li").attr("id", "SecondGenome")
+                .append("span").attr("class", "value").attr("id", "genome2");
+        infowindow.select("li#SecondGenome")
+                .append("span").attr("class", "key").text("Second Genome");
+        infowindow.select("li#SecondGenome")
+                .append("ul").attr("id", "innerUlG2");
+
+        var innerUlG2 = infowindow.select("ul#innerUlG2");
+        innerUlG2.append("li").attr("id", "secondGen")
+                .append("span").attr("class", "value").attr("id", "gen2");
+        infowindow.select("li#secondGen")
+                .append("span").attr("class", "key").text("Gen");
+
+        innerUlG2.append("li").attr("id", "secondOrientation")
+                .append("span").attr("class", "value").attr("id", "orientation2");
+        infowindow.select("li#secondOrientation")
+                .append("span").attr("class", "key").text("Orientation");
+
+        innerUlG2.append("li").attr("id", "secondStart")
+                .append("span").attr("class", "value").attr("id", "start2");
+        infowindow.select("li#secondStart")
+                .append("span").attr("class", "key").text("Start position");
+
+        innerUlG2.append("li").attr("id", "secondEnd")
+                .append("span").attr("class", "value").attr("id", "end2");
+        infowindow.select("li#secondEnd")
+                .append("span").attr("class", "key").text("End position");
+
+        innerUlG2.append("li").attr("id", "secondlength")
+                .append("span").attr("class", "value").attr("id", "length2");
+        infowindow.select("li#secondlength")
+                .append("span").attr("class", "key").text("Length");
+
+        infowindow.select("ul#outerUl")
+                .append("li").attr("id", "Information")
+                .append("span").attr("class", "value").attr("id", "info");
+        infowindow.select("li#Information")
+                .append("span").attr("class", "key").text("e-Value or something else");
+
         singleView.append("div").attr("id", "buttons");
         var tableDiv = singleView.append("div").attr("id", "table");
-        
-        
+
         // Das sind die keys + paar zusätze, manipulieren und selbst erstellen lassen?
         var table = tableDiv.append("table").attr("id", "table").attr("class", "hidden");
         var tableHeadTr = table.append("thead").append("tr");
@@ -226,7 +300,7 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
         table.append("tbody");
 
 
-
+        // Technical stuff
         var margin = {top: 10, right: 10, bottom: 45, left: 70};
         var width = 550 - margin.left - margin.right;
         var height = 550 - margin.top - margin.bottom;
@@ -314,7 +388,7 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                     zoomed();
                 });
 
-        var infowindow = singleView.select("div#infowindow");
+//        var infowindow = singleView.select("div#infowindow");
 
         // Outer SVG
         var svg = singleView.select("div#plot")
@@ -382,6 +456,7 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                 .attr("id", function (d, i) {
                     return "ID" + i;
                 })
+                .attr("class", "single")
                 .on("contextmenu", function (d, i) {
                     d3.event.preventDefault();
                     var popup = singleView.append("ul")
@@ -413,29 +488,29 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
                 .on("mouseover", function (d) {
                     d3.select(this).classed("hover", true); // bunt
                     this.parentNode.appendChild(this); // Redraw
-                    /*
-                     infowindow.transition()
-                     .duration(200)
-                     .style("opacity", 0.9)
-                     .style('display', 'inline-block');
-                     
-                     infowindow.select("#genome1").text(d.Genome1);
-                     infowindow.select("#gen1").text(d.Gen1);
-                     infowindow.select("#orientation1").text(getOrientation(d.Start1, d.End1));
-                     infowindow.select("#start1").text(d3.format(",")(d.Start1));
-                     infowindow.select("#end1").text(d3.format(",")(d.End1));
-                     infowindow.select("#length1")
-                     .text(d3.format(",")(Math.abs(d.End1 - d.Start1)));
-                     //Update the tooltip genome2
-                     infowindow.select("#genome2").text(d.Genome2);
-                     infowindow.select("#gen2").text(d.Gen2);
-                     infowindow.select("#orientation2").text(getOrientation(d.Start2, d.End2));
-                     infowindow.select("#start2").text(d3.format(",")(d.Start2));
-                     infowindow.select("#end2").text(d3.format(",")(d.End2));
-                     infowindow.select("#length2")
-                     .text(d3.format(",")(Math.abs(d.End2 - d.Start2)));
-                     // Update the tooltip info
-                     infowindow.select("#info").text(d.Info);*/
+
+                    infowindow.transition()
+                            .duration(200)
+                            .style("opacity", 0.9)
+                            .style('display', 'inline-block');
+
+                    infowindow.select("#genome1").text(d.Genome1);
+                    infowindow.select("#gen1").text(d.Gen1);
+                    infowindow.select("#orientation1").text(getOrientation(d.Start1, d.End1));
+                    infowindow.select("#start1").text(d3.format(",")(d.Start1));
+                    infowindow.select("#end1").text(d3.format(",")(d.End1));
+                    infowindow.select("#length1")
+                            .text(d3.format(",")(Math.abs(d.End1 - d.Start1)));
+                    //Update the tooltip genome2
+                    infowindow.select("#genome2").text(d.Genome2);
+                    infowindow.select("#gen2").text(d.Gen2);
+                    infowindow.select("#orientation2").text(getOrientation(d.Start2, d.End2));
+                    infowindow.select("#start2").text(d3.format(",")(d.Start2));
+                    infowindow.select("#end2").text(d3.format(",")(d.End2));
+                    infowindow.select("#length2")
+                            .text(d3.format(",")(Math.abs(d.End2 - d.Start2)));
+                    // Update the tooltip info
+                    infowindow.select("#info").text(d.Info);
                 })
                 .on("click", function (d, i) {
                     if (d3.select(this).attr("class").indexOf("saved") !== -1) {

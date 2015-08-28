@@ -25,9 +25,6 @@
  *              tabelle autosort beim Hinzufügen
  * 
  * 
- * Aufräumen:
- *      Einheitlich id/class ansprechen
- *      Doku/Comments englisch
  *      
  */
 
