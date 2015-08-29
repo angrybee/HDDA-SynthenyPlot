@@ -218,6 +218,7 @@ d3.json("files/ArabidopsisDone.json", function (error, bigdata) {
                 })
                 .enter()
                 .append("circle")
+                .attri("class", "overview")
                 .attr("cx", function (d) {
                     return x(genome[d.genome1].genes[d.gen1].start);
                 })
@@ -225,8 +226,6 @@ d3.json("files/ArabidopsisDone.json", function (error, bigdata) {
                     return y(genome[d.genome2].genes[d.gen2].start);
                 })
                 .attr("r", 0.5)
-                .style("fill", "blue");
-
     }
 
     // Logic to get the genomes into a matrix
@@ -414,6 +413,7 @@ homolog genes in the selected genomes.");
             svg.select(".x.axis").call(xAxis);
             svg.select(".y.axis").call(yAxis);
             svg.selectAll("circle")
+                    .attr("class", "single") // class for singleview dots
                     .attr("cx", function (d) {
                         return xScale(genome[d.genome1].genes[d.gen1].start);
                     })
