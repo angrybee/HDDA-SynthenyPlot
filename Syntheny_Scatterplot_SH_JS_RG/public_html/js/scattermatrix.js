@@ -5,11 +5,13 @@
 //        USAGE: 
 //
 //  DESCRIPTION:    Performance for M-BS2-S4B SS2015
-//                  Visualization of synteny with Javascript and the
-//                  library D3.js (http://d3js.org)
+//                  Visualization of synteny with Javascript
 //
 //      OPTIONS:    ---
-// REQUIREMENTS:    datafile in json-format: TBD
+// REQUIREMENTS:    Datafile in json-format: TBD
+//                  Javascript libraries:
+//                      D3.js http://d3js.org
+//                      underscore-min.js http://underscorejs.org
 // 
 //         BUGS:    Click to open new window only works if not clicked on dots.
 //                  If drawing a frame (class=frame) only a click on the frame 
@@ -26,13 +28,12 @@
 
 /*
  * ToDo:
- * Anzahl genome flexibel feststellen
- * domain abfrage in singleview auf domainByGenome[genome]
+ * Daten aus neuer Struktur ziehen
  * 
  * Anpassen und vereinheitlichen
  * 
  */
-/* global d3 */
+/* global d3, _ */
 
 var size = 100;
 var padding = 25.5;
@@ -87,6 +88,7 @@ d3.json("files/ArabidopsisDone.json", function (error, bigdata) {
         var matrix = {}; // homologydata, each compared genome in 1 array
 
         // Workaround for empty cells/data
+        // Key with prefix zu make sure it starts with a letter
         function initMatrix() {
             for (var i = 0; i < n; i++) {
                 matrix["G" + genomes[i]] = {};
@@ -132,6 +134,7 @@ d3.json("files/ArabidopsisDone.json", function (error, bigdata) {
                 .each(function (d) {
                     x.domain(domainByGenome[d]);
                     d3.select(this).call(xAxis);
+                    // Outer xAxis label
                     d3.select(this).append("text")
                             .attr("class", "axis label")
                             .attr("transform", function () {
@@ -153,6 +156,7 @@ d3.json("files/ArabidopsisDone.json", function (error, bigdata) {
                 .each(function (d) {
                     y.domain(domainByGenome[d]);
                     d3.select(this).call(yAxis);
+                    // Outer yAxis label
                     d3.select(this).append("text")
                             .attr("class", "axis label")
                             .attr("transform", "rotate(-90)")
@@ -218,10 +222,12 @@ d3.json("files/ArabidopsisDone.json", function (error, bigdata) {
                     .enter()
                     .append("circle")
                     .attr("cx", function (d) {
-                        return x(d.Start1);
+                        return x(genome[d.Genome1].genes[d.Gen1].start);
+//                        return x(d.Start1);
                     })
                     .attr("cy", function (d) {
-                        return y(d.Start2);
+                        return y(genome[d.Genome2].genes[d.Gen2].start);
+                        //  return y(d.Start2);
                     })
                     .attr("r", 0.5)
                     .style("fill", "blue");
@@ -414,10 +420,12 @@ homolog genes in the selected genomes.");
                 svg.select(".y.axis").call(yAxis);
                 svg.selectAll("circle")
                         .attr("cx", function (d) {
-                            return xScale(d.Start1);
+                            return xScale(genome[d.Genome1].genes[d.Gen1].start);
+//                            return xScale(d.Start1);
                         })
                         .attr("cy", function (d) {
-                            return yScale(d.Start2);
+                            return yScale(genome[d.Genome2].genes[d.Gen2].start);
+//                            return yScale(d.Start2);
                         })
                         .attr("r", function () {
                             // Use new scale or the maxRadius to get "normal" sized
@@ -464,7 +472,7 @@ homolog genes in the selected genomes.");
                     .attr("class", "x axis")
                     .attr("transform", "translate(0," + (height) + ")")
                     .call(xAxis);
-            // Add the text label for the xAxis
+            // Add the label for the xAxis
             svg.append("text")
                     .attr("class", "axis label")
                     .attr("transform", "translate(" + (width / 2) + " ,"
@@ -477,7 +485,7 @@ homolog genes in the selected genomes.");
                     .attr("class", "y axis")
                     .attr("transform", "translate(0,0)")
                     .call(yAxis);
-            // Add the text label for the yAxis
+            // Add the label for the yAxis
             svg.append("text")
                     .attr("class", "axis label")
                     .attr("transform", "rotate(-90)")
@@ -500,11 +508,13 @@ homolog genes in the selected genomes.");
                     .append("circle")
                     .attr("cx", function (d) {
                         // scaling the values to xAxis
-                        return xScale(d.Start1);
+                        return xScale(genome[d.Genome1].genes[d.Gen1].start);
+//                        return xScale(d.Start1);
                     })
                     .attr("cy", function (d) {
                         // scaling the values to yAxis
-                        return yScale(d.Start2);
+                        return yScale(genome[d.Genome2].genes[d.Gen2].start);
+//                        return yScale(d.Start2);
                     })
                     .attr("r", minRadius) // radius
                     .attr("id", function (d, i) {
@@ -519,20 +529,10 @@ homolog genes in the selected genomes.");
                                 .style("left", (d3.event.pageX) + "px") // xPos
                                 .style("top", (d3.event.pageY) + "px"); // yPos
 
-                        popup.append("li").html("<a href='" + dbGenome + d.Genome1
-                                + "' target='_blank'>"
-                                + d.Genome1 + "</a>");
-                        popup.append("li")
-                                .html("<a href='" + dbGen + d.Gen1
-                                        + "[sym]' target='_blank'>"
-                                        + d.Gen1 + "</a>");
-                        popup.append("li").html("<a href='" + dbGenome + d.Genome2
-                                + "' target='_blank'>"
-                                + d.Genome2 + "</a>");
-                        popup.append("li")
-                                .html("<a href='" + dbGen + d.Gen2
-                                        + "[sym]' target='_blank'>"
-                                        + d.Gen2 + "</a>");
+                        popup.append("li").html("<a href='" + dbGenome + d.Genome1 + "' target='_blank'>" + d.Genome1 + "</a>");
+                        popup.append("li").html("<a href='" + dbGen + d.Gen1 + "[sym]' target='_blank'>" + d.Gen1 + "</a>");
+                        popup.append("li").html("<a href='" + dbGenome + d.Genome2 + "' target='_blank'>" + d.Genome2 + "</a>");
+                        popup.append("li").html("<a href='" + dbGen + d.Gen2 + "[sym]' target='_blank'>" + d.Gen2 + "</a>");
 
                         popup.on("mouseleave", function () {
                             popup.remove();
@@ -549,20 +549,16 @@ homolog genes in the selected genomes.");
 
                         infowindow.select("#genome1").text(d.Genome1);
                         infowindow.select("#gen1").text(d.Gen1);
-                        infowindow.select("#orientation1")
-                                .text(getOrientation(d.Start1, d.End1));
-                        infowindow.select("#start1").text(d3.format(",")(d.Start1));
-                        infowindow.select("#end1").text(d3.format(",")(d.End1));
-                        infowindow.select("#length1")
-                                .text(d3.format(",")(Math.abs(d.End1 - d.Start1)));
+                        infowindow.select("#orientation1").text(getOrientation(genome[d.Genome1].genes[d.Gen1].start, genome[d.Genome1].genes[d.Gen1].end));
+                        infowindow.select("#start1").text(d3.format(",")(genome[d.Genome1].genes[d.Gen1].start));
+                        infowindow.select("#end1").text(d3.format(",")(genome[d.Genome1].genes[d.Gen1].end));
+                        infowindow.select("#length1").text(d3.format(",")(Math.abs(genome[d.Genome1].genes[d.Gen1].end - genome[d.Genome1].genes[d.Gen1].start)));
                         infowindow.select("#genome2").text(d.Genome2);
                         infowindow.select("#gen2").text(d.Gen2);
-                        infowindow.select("#orientation2")
-                                .text(getOrientation(d.Start2, d.End2));
-                        infowindow.select("#start2").text(d3.format(",")(d.Start2));
-                        infowindow.select("#end2").text(d3.format(",")(d.End2));
-                        infowindow.select("#length2")
-                                .text(d3.format(",")(Math.abs(d.End2 - d.Start2)));
+                        infowindow.select("#orientation2").text(getOrientation(genome[d.Genome2].genes[d.Gen2].start, genome[d.Genome2].genes[d.Gen2].end));
+                        infowindow.select("#start2").text(d3.format(",")(genome[d.Genome2].genes[d.Gen2].start));
+                        infowindow.select("#end2").text(d3.format(",")(genome[d.Genome2].genes[d.Gen2].end));
+                        infowindow.select("#length2").text(d3.format(",")(Math.abs(genome[d.Genome2].genes[d.Gen2].end - genome[d.Genome2].genes[d.Gen2].start)));
                         infowindow.select("#info").text(d.Info);
                     })
                     .on("click", function (d, i) { // mouseclick
@@ -588,29 +584,18 @@ homolog genes in the selected genomes.");
                             tempRow = row; // save it for later to remove mark
 
                             // add stuff to the table
-                            row.append("td").html("<a href='" + dbGenome + d.Genome1
-                                    + "' target='_blank'>"
-                                    + d.Genome1 + "</a>");
-                            row.append("td").html("<a href='" + dbGen + d.Gen1
-                                    + "[sym]' target='_blank'>"
-                                    + d.Gen1 + "</a>");
-                            row.append("td").text(getOrientation(d.Start1, d.End1));
-                            row.append("td").text(d3.format(",")(d.Start1));
-                            row.append("td").text(d3.format(",")(d.End1));
-                            row.append("td").text(d3.format(",")
-                                    (Math.abs(d.End1 - d.Start1)));
-
-                            row.append("td").html("<a href='" + dbGenome + d.Genome2
-                                    + "' target='_blank'>"
-                                    + d.Genome2 + "</a>");
-                            row.append("td").html("<a href='" + dbGen + d.Gen2
-                                    + "[sym]' target='_blank'>"
-                                    + d.Gen2 + "</a>");
-                            row.append("td").text(getOrientation(d.Start2, d.End2));
-                            row.append("td").text(d3.format(",")(d.Start2));
-                            row.append("td").text(d3.format(",")(d.End2));
-                            row.append("td").text(d3.format(",")
-                                    (Math.abs(d.End2 - d.Start2)));
+                            row.append("td").html("<a href='" + dbGenome + d.Genome1 + "' target='_blank'>" + d.Genome1 + "</a>");
+                            row.append("td").html("<a href='" + dbGen + d.Gen1 + "[sym]' target='_blank'>" + d.Gen1 + "</a>");
+                            row.append("td").text(getOrientation(genome[d.Genome1].genes[d.Gen1].start, genome[d.Genome1].genes[d.Gen1].end));
+                            row.append("td").text(d3.format(",")(genome[d.Genome1].genes[d.Gen1].start));
+                            row.append("td").text(d3.format(",")(genome[d.Genome1].genes[d.Gen1].end));
+                            row.append("td").text(d3.format(",")(Math.abs(genome[d.Genome1].genes[d.Gen1].end - genome[d.Genome1].genes[d.Gen1].start)));
+                            row.append("td").html("<a href='" + dbGenome + d.Genome2 + "' target='_blank'>" + d.Genome2 + "</a>");
+                            row.append("td").html("<a href='" + dbGen + d.Gen2 + "[sym]' target='_blank'>" + d.Gen2 + "</a>");
+                            row.append("td").text(getOrientation(genome[d.Genome2].genes[d.Gen2].start, genome[d.Genome2].genes[d.Gen2].end));
+                            row.append("td").text(d3.format(",")(genome[d.Genome2].genes[d.Gen2].start));
+                            row.append("td").text(d3.format(",")(genome[d.Genome2].genes[d.Gen2].end));
+                            row.append("td").text(d3.format(",")(Math.abs(genome[d.Genome2].genes[d.Gen2].end - genome[d.Genome2].genes[d.Gen2].start)));
                             row.append("td").text(d.Info);
                             row.append("button")
                                     .attr("type", "button")
@@ -644,9 +629,6 @@ homolog genes in the selected genomes.");
                 if (singleView.select("circle.saved")[0][0] === null)
                     singleView.select("table#table").classed("hidden", true);
             }
-
-            // Change every link to target=_blank to open in new window/tab
-            singleView.selectAll("a").attr("target", "_blank");
         }
     });
 });
