@@ -377,16 +377,12 @@ homolog genes in the selected genomes.");
 
             // Scaling xAxis
             var xScale = d3.scale.linear()
-                    .domain(d3.extent(dataset, function (d) {
-                        return parseInt(d.Start1); // Original scaling [min, max]
-                    }))
+                    .domain(domainByGenome[dataset[0].Genome1]) // Original
                     .range([0, width]); // New scaling [min, max]
 
             // Scaling yAxis
             var yScale = d3.scale.linear()
-                    .domain(d3.extent(dataset, function (d) {
-                        return parseInt(d.Start2);
-                    }))
+                    .domain(domainByGenome[dataset[0].Genome2]) // Original
                     .range([height, 0]); // New scaling [min, max] upsidedown
 
             // xAxis, scaling, text bottom
@@ -409,7 +405,7 @@ homolog genes in the selected genomes.");
             var zoom = d3.behavior.zoom()
                     .x(xScale)  // Set new scales
                     .y(yScale)
-                    .scaleExtent([1, 100])  // "ZoomInFactor"
+                    .scaleExtent([0.9, 100])  // "ZoomInFactor"
                     .on("zoom", zoomed);
 
             // Zoomfunction, zoomes axis and dots
