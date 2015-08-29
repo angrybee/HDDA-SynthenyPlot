@@ -47,6 +47,9 @@ circle.single{
     stroke-width:0.3;
 }
 
+circle.overview{
+}
+
 circle.marked {
     fill:violet;
 }
@@ -65,9 +68,9 @@ rect {
 }
 
 .frame {
-        fill: none;
-        stroke: #aaa;
-    }
+    fill: none;
+    stroke: #aaa;
+}
 
 .axis text {
     font-family:sans-serif;

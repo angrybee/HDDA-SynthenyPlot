@@ -218,7 +218,7 @@ d3.json("files/ArabidopsisDone.json", function (error, bigdata) {
                 })
                 .enter()
                 .append("circle")
-                .attri("class", "overview")
+                .attr("class", "overview")
                 .attr("cx", function (d) {
                     return x(genome[d.genome1].genes[d.gen1].start);
                 })
