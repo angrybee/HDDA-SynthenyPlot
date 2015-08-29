@@ -53,7 +53,7 @@ var yAxis = d3.svg.axis()
         .orient("left");
 //   .ticks(5);
 
-d3.json("files/ArabidopsisDone.json", function (error, bigdata) {
+d3.json("files/Arabidopsis.json", function (error, bigdata) {
     if (error)
         return console.warn(error);
 
