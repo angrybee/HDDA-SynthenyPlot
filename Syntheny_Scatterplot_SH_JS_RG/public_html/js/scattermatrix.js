@@ -28,9 +28,6 @@
  * ToDo:
  * individuelle domaingrößen und die dann mitgeben/speichern
  * 
- * Aufräumen:
- *      Einheitlich id/class ansprechen
- *      Doku/Comments englisch* 
  * Anpassen und vereinheitlichen
  * 
  */
@@ -55,6 +52,7 @@ var yAxis = d3.svg.axis()
         .orient("left");
 //   .ticks(5);
 
+
 d3.tsv("files/Arabidopsis.tsv", function (error, data) {
     if (error)
         return console.warn(error);
@@ -63,6 +61,8 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
     var genomes = ["1", "2", "3", "4", "5"];  // bekommen wir aus
     //erstem teil der struktur = anzahl genome
     var n = genomes.length; // numer of data // 5
+
+
 
     var domainByGenome = {};
     genomes.forEach(function (genome) {
@@ -104,7 +104,7 @@ d3.tsv("files/Arabidopsis.tsv", function (error, data) {
     yAxis.tickSize(-size * n)
             .tickFormat(d3.format("s"));
 
-    var svg = d3.select("body")
+    var svg = d3.select("div#overview")
             .append("svg")
             .attr("width", size * n + 2 * padding)
             .attr("height", size * n + 2 * padding)
@@ -351,7 +351,7 @@ homolog genes in the selected genomes.");
         tableHeadTr.append("th").text("Del");
         table.append("tbody");
 
-        // Technical stuff
+
         var margin = {top: 10, right: 10, bottom: 45, left: 70};
         var width = 550 - margin.left - margin.right;
         var height = 550 - margin.top - margin.bottom;
@@ -480,6 +480,8 @@ homolog genes in the selected genomes.");
                 .attr("dy", "1em")
                 .style("text-anchor", "middle")
                 .text(dataset[0].Genome2);
+        
+        
 
         // Inner SVG with data
         var plot = svg.append("svg")
