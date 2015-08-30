@@ -2,7 +2,7 @@
 This repository includes a way to visualize genom data as scatterplot to find synteny parts.
 
 ## Good to know
-The project is a perfomance for M-BS2-S4B SS2015 at the Justus-Liebig-University Giessen. For the overview [this nice example](http://bl.ocks.org/mbostock/3213173) was used and modified. Brushing is not implemented because d3.brush and d3.zoom both trigger on drag.
+The project is a perfomance for M-BS2-S4B SS2015 at the Justus-Liebig-University Giessen. For the overview [this nice example](http://bl.ocks.org/mbostock/3213173) was used and modified. Brushing is not implemented because d3.brush and d3.zoom both trigger on drag. The links where to look for the genome/gen are hardcoded. The search pattern is individual.
 
 ### Requirements
   Datafile as JSON. Javascript libraries [D3.js](http://d3js.org) and [underscore-min.js](http://underscorejs.org).
