@@ -85,7 +85,7 @@ d3.json("files/Arabidopsis.json", function (error, bigdata) {
     var matrix = {}; // homologydata, each comparison in single array
 
     // Workaround because of empty cells/data
-    // Key with prefix zu make sure it starts with a letter
+    // Key with prefix to make sure it starts with a letter
     function initMatrix() {
         for (var i = 0; i < n; i++) {
             matrix["G" + genomes[i]] = {};
@@ -257,83 +257,74 @@ homolog genes in the selected genomes.");
         var infowindow = middle.append("div").attr("id", "infowindow");
 
         // Big tooltip
-        infowindow.append("ul").attr("id", "outerUl");
-        infowindow.select("ul#outerUl")
-                .append("li").attr("id", "firstGenome")
-                .append("span").attr("class", "value").attr("id", "genome1");
-        infowindow.select("li#firstGenome")
-                .append("span").attr("class", "key").text("First Genome");
-        infowindow.select("li#firstGenome")
-                .append("ul").attr("id", "innerUlG1");
+        var info = [
+            ["genome1", "First Genome"],
+            ["genome2", "Second Genome"],
+            ["info", "e-Value or something else"]
+        ];
+        var infoDetails = [
+            ["gen", "Gen"],
+            ["start", "Start"],
+            ["end", "End"],
+            ["orientation", "Orientation"],
+            ["length", "Length"]
+        ];
 
-        var innerUlG1 = infowindow.select("ul#innerUlG1");
-        innerUlG1.append("li").attr("id", "firstGen")
-                .append("span").attr("class", "value").attr("id", "gen1");
-        infowindow.select("li#firstGen")
-                .append("span").attr("class", "key").text("Gen");
+        var m = infoDetails.length;
 
-        innerUlG1.append("li").attr("id", "firstOrientation")
-                .append("span").attr("class", "value")
-                .attr("id", "orientation1");
-        infowindow.select("li#firstOrientation")
-                .append("span").attr("class", "key").text("Orientation");
+        infowindow.append("ul").selectAll("li")
+                .data(info).enter()
+                .append("li")
+                .attr("class", function (d, i) {
+                    if (i <= 1)
+                        return "data";
+                })
+                .selectAll("span")
+                .data(function (d) {
+                    return d;
+                }).enter()
+                .append("span")
+                .attr("class", function (d, i) {
+                    if (i === 1)
+                        return "key";
+                    return "value";
+                })
+                .attr("id", function (d, i) {
+                    if (i === 0)
+                        return d;
+                })
+                .text(function (d, i) {
+                    if (i === 1)
+                        return d;
+                });
 
-        innerUlG1.append("li").attr("id", "firstStart")
-                .append("span").attr("class", "value").attr("id", "start1");
-        infowindow.select("li#firstStart")
-                .append("span").attr("class", "key").text("Start position");
+        var j = 0; // where am I?
 
-        innerUlG1.append("li").attr("id", "firstEnd")
-                .append("span").attr("class", "value").attr("id", "end1");
-        infowindow.select("li#firstEnd")
-                .append("span").attr("class", "key").text("End position");
-
-        innerUlG1.append("li").attr("id", "firstlength")
-                .append("span").attr("class", "value").attr("id", "length1");
-        infowindow.select("li#firstlength")
-                .append("span").attr("class", "key").text("Length");
-
-        infowindow.select("ul#outerUl")
-                .append("li").attr("id", "SecondGenome")
-                .append("span").attr("class", "value").attr("id", "genome2");
-        infowindow.select("li#SecondGenome")
-                .append("span").attr("class", "key").text("Second Genome");
-        infowindow.select("li#SecondGenome")
-                .append("ul").attr("id", "innerUlG2");
-
-        var innerUlG2 = infowindow.select("ul#innerUlG2");
-        innerUlG2.append("li").attr("id", "secondGen")
-                .append("span").attr("class", "value").attr("id", "gen2");
-        infowindow.select("li#secondGen")
-                .append("span").attr("class", "key").text("Gen");
-
-        innerUlG2.append("li").attr("id", "secondOrientation")
-                .append("span").attr("class", "value")
-                .attr("id", "orientation2");
-        infowindow.select("li#secondOrientation")
-                .append("span").attr("class", "key").text("Orientation");
-
-        innerUlG2.append("li").attr("id", "secondStart")
-                .append("span").attr("class", "value").attr("id", "start2");
-        infowindow.select("li#secondStart")
-                .append("span").attr("class", "key").text("Start position");
-
-        innerUlG2.append("li").attr("id", "secondEnd")
-                .append("span").attr("class", "value").attr("id", "end2");
-        infowindow.select("li#secondEnd")
-                .append("span").attr("class", "key").text("End position");
-
-        innerUlG2.append("li").attr("id", "secondlength")
-                .append("span").attr("class", "value").attr("id", "length2");
-        infowindow.select("li#secondlength")
-                .append("span").attr("class", "key").text("Length");
-
-        infowindow.select("ul#outerUl")
-                .append("li").attr("id", "Information")
-                .append("span").attr("class", "value").attr("id", "info");
-        infowindow.select("li#Information")
-                .append("span").attr("class", "key")
-                .text("e-Value or something else");
+        infowindow.selectAll("li.data").append("ul").selectAll("li")
+                .data(infoDetails)
+                .enter()
+                .append("li")
+                .selectAll("span")
+                .data(function (d) {
+                    return d;
+                }).enter()
+                .append("span")
+                .attr("class", function (d, i) {
+                    if (i === 1)
+                        return "key";
+                    return "value";
+                })
+                .attr("id", function (d, i) {
+                    // where am I?
+                    var k = ~~(j / (2 * m)) + 1;
+                    j++;
+                    if (i === 0)
+                        return d + k;
+                })
+                .text(function (d, i) {
+                    if (i === 1)
+                        return d;
+                });
 
         // Divs
         singleView.append("div").attr("id", "buttons");
