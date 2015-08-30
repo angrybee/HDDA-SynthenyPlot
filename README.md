@@ -10,6 +10,8 @@ The project is a perfomance for M-BS2-S4B SS2015 at the Justus-Liebig-University
 ### Bugs
 The click to open the single plot only works if not clicked on dots. If drawing a frame (class=frame) only a click on the frame opens a new window.
 
+A realy fast doubleclick (like from a broken mouse) on a dot in singleview sometimes gets the table to hide. Clicking on another dot shows the table with everything in it. Maybe a problem with the zoom which also triggers a doubleclick on the free background.
+
 ### The data
 The file "data_sets/Arabidopsis/Arabidopsis.Release5.matchList" from [DAGchainer: Computing Chains of Syntenic Genes in Complete Genomes](http://dagchainer.sourceforge.net/) was used to fill our own JSON file. Thanks a lot!
 
