@@ -339,27 +339,20 @@ homolog genes in the selected genomes.");
         singleView.append("div").attr("id", "buttons");
         var tableDiv = singleView.append("div").attr("id", "table");
 
-        // Das sind die keys + paar zusätze, manipulieren und selbst
-        // erstellen lassen?
         // Table for the saved information
-        var table = tableDiv.append("table").attr("id", "table")
-                .attr("class", "hidden");
+        var tableHead = ["1st Genome", "Gen", "Orientation", "Start", "End", "Length",
+            "2nd Genome", "Gen", "Orientation", "Start", "End", "Length",
+            "Info", "Del"];
+        var table = tableDiv.append("table").attr("id", "table").classed("hidden", true);
         var tableHeadTr = table.append("thead").append("tr");
-        tableHeadTr.append("th").text("1st Genome");
-        tableHeadTr.append("th").text("Gen");
-        tableHeadTr.append("th").text("Orientation");
-        tableHeadTr.append("th").text("Start");
-        tableHeadTr.append("th").text("End");
-        tableHeadTr.append("th").text("Length");
-        tableHeadTr.append("th").text("2nd Genome");
-        tableHeadTr.append("th").text("Gen");
-        tableHeadTr.append("th").text("Orientation");
-        tableHeadTr.append("th").text("Start");
-        tableHeadTr.append("th").text("End");
-        tableHeadTr.append("th").text("Length");
-        tableHeadTr.append("th").text("Info");
-        tableHeadTr.append("th").text("Del");
+        tableHeadTr.selectAll("th")
+                .data(tableHead)
+                .enter()
+                .append("th").text(function (d) {
+            return d;
+        });
         table.append("tbody");
+
 
         // Technical stuff
         var margin = {top: 10, right: 10, bottom: 45, left: 70};
