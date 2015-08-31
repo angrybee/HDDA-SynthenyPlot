@@ -418,7 +418,7 @@ homolog genes in the selected genomes.");
                 .attr("transform", "translate(" + (width / 2) + " ,"
                         + (height - 10 + margin.bottom) + ")")
                 .style("text-anchor", "middle")
-                .text(dataset[0].Genome1);
+                .text(dataset[0].genome1);
 
         // Group the yAxis
         svg.append("g")
@@ -433,7 +433,7 @@ homolog genes in the selected genomes.");
                 .attr("x", 0 - (height / 2))
                 .attr("dy", "1em")
                 .style("text-anchor", "middle")
-                .text(dataset[0].Genome2);
+                .text(dataset[0].genome2);
 
         // Inner SVG with data
         var plot = svg.append("svg")
