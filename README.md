@@ -7,11 +7,17 @@ The project is a perfomance for M-BS2-S4B SS2015 at the Justus-Liebig-University
 ### Requirements
 Datafile as JSON. See the example in the files folder. Javascript libraries [D3.js](http://d3js.org) and [underscore-min.js](http://underscorejs.org).
  
-### Bugs
-The click to open the single plot only works if not clicked on dots. If drawing a frame (class=frame) only a click on the frame opens a new window.
-
+### Usage
+In the overview click on the plot you want to see in detail. In the single view you can zoom in and out. Also it is possible to mark the dots by clicking and get them into a table. A rightclick on the dots makes it possible to click on the links to the genes and genomes.
+ 
 ### The data
 The file "data_sets/Arabidopsis/Arabidopsis.Release5.matchList" from [DAGchainer: Computing Chains of Syntenic Genes in Complete Genomes](http://dagchainer.sourceforge.net/) was used to fill our own JSON file. Thanks a lot!
+
+### What is missing
+You cannot save the marked data/ the table or the SVG itself.
+
+### Bugs
+The click to open the single plot only works if not clicked on dots. If drawing a frame (class=frame) only a click on the frame opens a new window.
 
 ## Licence
 The MIT License (MIT)
