@@ -376,6 +376,10 @@ homolog genes in the selected genomes.");
                             return d3.event.scale;
                         // Reset needs the original minRadius.
                         return minRadius;
+                    })
+                    .attr("class", function (d) {
+                        if (d.saved)
+                            return "saved"; // save the marked ones
                     });
         }
 
@@ -555,6 +559,8 @@ homolog genes in the selected genomes.");
                     else {
                         // Mark the spot as clicked
                         d3.select(this).classed("saved", true);
+                        // save it in datastructure for redraw while zoom
+                        d.saved = true;
 
                         // remove newAdded
                         if (tempRow !== null)
@@ -642,6 +648,7 @@ homolog genes in the selected genomes.");
 
         // Get and remove row und mark
         function removeSaved(i) {
+            delete dataset[i].saved; // removes saved mark
             singleView.select("tr#ID" + i).remove();
             singleView.select("circle#ID" + i).classed("saved", false);
             // Hide table
